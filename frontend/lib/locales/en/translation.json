@@ -1,0 +1,59 @@
+{
+  "languageSelection": {
+    "selectLanguage": "Select your language",
+    "comingSoon": "Coming soon in more Indian languages"
+  },
+  "home": {
+    "userName": "Vivek Patil",
+    "userCategory": "Politicians",
+    "celebrateDiwali": "CELEBRATE\nDIWALI",
+    "todaysBest": "Today's best",
+    "upcoming": "Upcoming",
+    "mostLiked": "Most liked",
+    "contentType": "Content type",
+    "whatsappStatus": "WhatsApp\nstatus",
+    "instagramReels": "Instagram\nreels",
+    "youtubeShorts": "Youtube\nshorts",
+    "facebookPost": "Facebook\npost",
+    "add": "Add"
+  },
+  "content": {
+    "birthdayWishes": "Birthday Wishes",
+    "trendingVideos": "Trending Videos",
+    "quickVideos": "Quick Videos",
+    "socialUpdates": "Social Updates",
+    "birthdayCelebration": "Birthday Celebration",
+    "festivalWishes": "Festival Wishes",
+    "anniversaryPost": "Anniversary Post",
+    "weddingInvitation": "Wedding Invitation",
+    "graduationDay": "Graduation Day",
+    "newYearWishes": "New Year Wishes",
+    "home": "Home",
+    "liked": "Liked",
+    "downloads": "Downloads",
+    "share": "Share"
+  },
+  "add": {
+    "createContent": "Create Content",
+    "addYourOwn": "Add your own templates and designs"
+  },
+  "downloads": {
+    "title": "Downloads",
+    "subtitle": "Your downloaded content will appear here"
+  },
+  "liked": {
+    "title": "Liked Content",
+    "subtitle": "Your favorite templates will appear here"
+  },
+  "share": {
+    "title": "Share",
+    "subtitle": "Share your creations with others"
+  },
+  "tabs": {
+    "home": "Home",
+    "add": "Add",
+    "downloads": "Downloads",
+    "liked": "Liked",
+    "share": "Share"
+  }
+}

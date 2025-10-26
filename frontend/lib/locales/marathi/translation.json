@@ -1,0 +1,59 @@
+{
+  "languageSelection": {
+    "selectLanguage": "तुमची भाषा निवडा",
+    "comingSoon": "अधिक भारतीय भाषांमध्ये लवकरच येत आहे"
+  },
+  "home": {
+    "userName": "विवेक पाटील",
+    "userCategory": "राजकारणी",
+    "celebrateDiwali": "दिवाळी\nसाजरी करा",
+    "todaysBest": "आजचे सर्वोत्तम",
+    "upcoming": "येत आहे",
+    "mostLiked": "सर्वाधिक आवडले",
+    "contentType": "सामग्रीचा प्रकार",
+    "whatsappStatus": "व्हॉट्सऍप\nस्टेटस",
+    "instagramReels": "इन्स्टाग्राम\nरील्स",
+    "youtubeShorts": "यूट्यूब\nशॉर्ट्स",
+    "facebookPost": "फेसबुक\nपोस्ट",
+    "add": "जोडा"
+  },
+  "content": {
+    "birthdayWishes": "वाढदिवसाच्या शुभेच्छा",
+    "trendingVideos": "ट्रेंडिंग व्हिडिओ",
+    "quickVideos": "द्रुत व्हिडिओ",
+    "socialUpdates": "सामाजिक अपडेट्स",
+    "birthdayCelebration": "वाढदिवस साजरा",
+    "festivalWishes": "सणाच्या शुभेच्छा",
+    "anniversaryPost": "वर्धापन दिन पोस्ट",
+    "weddingInvitation": "लग्न निमंत्रण",
+    "graduationDay": "पदवी दिन",
+    "newYearWishes": "नवीन वर्षाच्या शुभेच्छा",
+    "home": "मुख्यपृष्ठ",
+    "liked": "आवडले",
+    "downloads": "डाउनलोड्स",
+    "share": "शेअर"
+  },
+  "add": {
+    "createContent": "सामग्री तयार करा",
+    "addYourOwn": "तुमचे स्वतःचे टेम्प्लेट्स आणि डिझाइन जोडा"
+  },
+  "downloads": {
+    "title": "डाउनलोड्स",
+    "subtitle": "तुमची डाउनलोड केलेली सामग्री येथे दिसेल"
+  },
+  "liked": {
+    "title": "आवडलेली सामग्री",
+    "subtitle": "तुमचे आवडते टेम्प्लेट्स येथे दिसतील"
+  },
+  "share": {
+    "title": "शेअर",
+    "subtitle": "तुमची निर्मिती इतरांसोबत शेअर करा"
+  },
+  "tabs": {
+    "home": "मुख्यपृष्ठ",
+    "add": "जोडा",
+    "downloads": "डाउनलोड्स",
+    "liked": "आवडले",
+    "share": "शेअर"
+  }
+}

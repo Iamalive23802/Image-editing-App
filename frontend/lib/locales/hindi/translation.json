@@ -1,0 +1,59 @@
+{
+  "languageSelection": {
+    "selectLanguage": "अपनी भाषा चुनें",
+    "comingSoon": "जल्द ही और भारतीय भाषाओं में आ रहा है"
+  },
+  "home": {
+    "userName": "विवेक पाटील",
+    "userCategory": "राजनेता",
+    "celebrateDiwali": "दिवाली\nमनाएं",
+    "todaysBest": "आज का सर्वश्रेष्ठ",
+    "upcoming": "आने वाला",
+    "mostLiked": "सबसे पसंदीदा",
+    "contentType": "सामग्री का प्रकार",
+    "whatsappStatus": "व्हाट्सऐप\nस्टेटस",
+    "instagramReels": "इंस्टाग्राम\nरील्स",
+    "youtubeShorts": "यूट्यूब\nशॉर्ट्स",
+    "facebookPost": "फेसबुक\nपोस्ट",
+    "add": "जोड़ें"
+  },
+  "content": {
+    "birthdayWishes": "जन्मदिन की शुभकामनाएं",
+    "trendingVideos": "ट्रेंडिंग वीडियो",
+    "quickVideos": "त्वरित वीडियो",
+    "socialUpdates": "सामाजिक अपडेट्स",
+    "birthdayCelebration": "जन्मदिन समारोह",
+    "festivalWishes": "त्योहार की शुभकामनाएं",
+    "anniversaryPost": "वर्षगांठ पोस्ट",
+    "weddingInvitation": "शादी का निमंत्रण",
+    "graduationDay": "स्नातक दिवस",
+    "newYearWishes": "नए साल की शुभकामनाएं",
+    "home": "होम",
+    "liked": "पसंदीदा",
+    "downloads": "डाउनलोड्स",
+    "share": "शेयर"
+  },
+  "add": {
+    "createContent": "सामग्री बनाएं",
+    "addYourOwn": "अपने खुद के टेम्प्लेट्स और डिज़ाइन जोड़ें"
+  },
+  "downloads": {
+    "title": "डाउनलोड्स",
+    "subtitle": "आपकी डाउनलोड की गई सामग्री यहाँ दिखेगी"
+  },
+  "liked": {
+    "title": "पसंदीदा सामग्री",
+    "subtitle": "आपके पसंदीदा टेम्प्लेट्स यहाँ दिखेंगे"
+  },
+  "share": {
+    "title": "शेयर",
+    "subtitle": "अपनी रचनाएं दूसरों के साथ साझा करें"
+  },
+  "tabs": {
+    "home": "होम",
+    "add": "जोड़ें",
+    "downloads": "डाउनलोड्स",
+    "liked": "पसंदीदा",
+    "share": "शेयर"
+  }
+}
