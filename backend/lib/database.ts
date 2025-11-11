@@ -46,9 +46,23 @@ export async function connectToDatabase() {
 export interface User {
   id: string;
   phone_number: string;
+  language: string | null;
+  prefix: string | null;
+  first_name: string | null;
+  middle_name: string | null;
+  last_name: string | null;
+  date_of_birth: string | null;
+  email: string | null;
+  address_line: string | null;
+  state: string | null;
+  district: string | null;
+  taluka: string | null;
+  role: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  twitter_url: string | null;
   created_at: string;
   updated_at: string;
-  language?: string;
 }
 
 export interface Session {
@@ -66,17 +80,31 @@ export async function createUser(phoneNumber: string): Promise<User> {
     return {
       id: 'mock-user-' + Date.now(),
       phone_number: phoneNumber,
+      prefix: null,
+      first_name: null,
+      middle_name: null,
+      last_name: null,
+      date_of_birth: null,
+      email: null,
+      address_line: null,
+      state: null,
+      district: null,
+      taluka: null,
+      role: null,
+      instagram_url: null,
+      facebook_url: null,
+      twitter_url: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      language: undefined
+      language: null,
     };
   }
   
   const client = await connectToDatabase();
   try {
     const query = `
-      INSERT INTO users (phone_number, created_at, updated_at)
-      VALUES ($1, NOW(), NOW())
+      INSERT INTO users (phone_number)
+      VALUES ($1)
       RETURNING *
     `;
     const result = await client.query(query, [phoneNumber]);
@@ -176,6 +204,123 @@ export async function getSessionByToken(token: string): Promise<Session | null> 
   }
 }
 
+export interface UpdateUserDetailsInput {
+  prefix?: string | null;
+  first_name?: string | null;
+  middle_name?: string | null;
+  last_name?: string | null;
+  date_of_birth?: string | null;
+  email?: string | null;
+  address_line?: string | null;
+  state?: string | null;
+  district?: string | null;
+  taluka?: string | null;
+  role?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  twitter_url?: string | null;
+}
+
+export async function updateUserDetails(
+  userId: string,
+  details: UpdateUserDetailsInput
+): Promise<User> {
+  const sanitizedDetails: UpdateUserDetailsInput = {
+    prefix: details.prefix,
+    first_name: details.first_name,
+    middle_name: details.middle_name,
+    last_name: details.last_name,
+    date_of_birth: details.date_of_birth,
+    email: details.email,
+    address_line: details.address_line,
+    state: details.state,
+    district: details.district,
+    taluka: details.taluka,
+    role: details.role,
+    instagram_url: details.instagram_url,
+    facebook_url: details.facebook_url,
+    twitter_url: details.twitter_url,
+  };
+
+  if (isBrowser || !pool) {
+    const mockUser = localStorage.getItem(`mock_user_id_${userId}`);
+    let parsedUser: User | null = null;
+    if (mockUser) {
+      parsedUser = JSON.parse(mockUser);
+    }
+    const now = new Date().toISOString();
+    const current: User = parsedUser
+      ? parsedUser
+      : {
+          id: userId,
+          phone_number: '',
+          language: null,
+          prefix: null,
+          first_name: null,
+          middle_name: null,
+          last_name: null,
+          date_of_birth: null,
+          email: null,
+          address_line: null,
+          state: null,
+          district: null,
+          taluka: null,
+          role: null,
+          instagram_url: null,
+          facebook_url: null,
+          twitter_url: null,
+          created_at: now,
+          updated_at: now,
+        };
+
+    const updated: User = {
+      ...current,
+      ...Object.fromEntries(
+        Object.entries(sanitizedDetails).map(([key, value]) => [key, value ?? null])
+      ),
+      updated_at: now,
+    };
+
+    localStorage.setItem(`mock_user_id_${userId}`, JSON.stringify(updated));
+    return updated;
+  }
+
+  const client = await connectToDatabase();
+  try {
+    const entries = Object.entries(sanitizedDetails).filter(
+      ([, value]) => value !== undefined
+    );
+
+    if (entries.length === 0) {
+      const existing = await client.query('SELECT * FROM users WHERE id = $1', [userId]);
+      if (!existing.rows[0]) {
+        throw new Error('User not found');
+      }
+      return existing.rows[0];
+    }
+
+    const setClauses = entries.map(
+      ([column], index) => `${column} = $${index + 2}`
+    );
+    const values = entries.map(([, value]) => value ?? null);
+
+    const query = `
+      UPDATE users
+      SET ${setClauses.join(', ')}, updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `;
+
+    const result = await client.query(query, [userId, ...values]);
+    if (!result.rows[0]) {
+      throw new Error('User not found');
+    }
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
+}
+
 // Delete session
 export async function deleteSession(token: string): Promise<void> {
   if (isBrowser || !pool) {
@@ -225,18 +370,30 @@ export async function initializeDatabase(): Promise<void> {
   
   const client = await connectToDatabase();
   try {
-    // Create users table
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         phone_number VARCHAR(15) UNIQUE NOT NULL,
         language VARCHAR(10),
+        prefix VARCHAR(10),
+        first_name VARCHAR(120),
+        middle_name VARCHAR(120),
+        last_name VARCHAR(120),
+        date_of_birth DATE,
+        email VARCHAR(255) UNIQUE,
+        address_line TEXT,
+        state VARCHAR(120),
+        district VARCHAR(120),
+        taluka VARCHAR(120),
+        role VARCHAR(60),
+        instagram_url TEXT,
+        facebook_url TEXT,
+        twitter_url TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `);
 
-    // Create sessions table
     await client.query(`
       CREATE TABLE IF NOT EXISTS sessions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -252,4 +409,3 @@ export async function initializeDatabase(): Promise<void> {
     client.release();
   }
 }
-

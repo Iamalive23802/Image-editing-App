@@ -3,10 +3,36 @@
     "selectLanguage": "Select your language",
     "comingSoon": "Coming soon in more Indian languages"
   },
+  "whoYouAre": {
+    "title": "Tell us who you are",
+    "comingSoon": "More categories coming soon",
+    "categories": {
+      "politicalFigure": {
+        "label": "Politicians / Party Members"
+      },
+      "individual": {
+        "label": "Individuals / General Public"
+      },
+      "brand": {
+        "label": "Brands / Companies"
+      },
+      "business": {
+        "label": "Local Shop / Service Provider"
+      },
+      "publicFigure": {
+        "label": "Artists / Celebrities"
+      }
+    }
+  },
   "home": {
     "userName": "Vivek Patil",
     "userCategory": "Politicians",
     "celebrateDiwali": "CELEBRATE\nDIWALI",
+    "heroSubtitle": "Premium festive collections handpicked for you.",
+    "banner2Title": "CREATE SHAREABLE STORIES",
+    "banner2Subtitle": "Quickly remix templates and export for every platform.",
+    "banner3Title": "CUSTOMISE IN SECONDS",
+    "banner3Subtitle": "Add your brand, text, and images with smart tools.",
     "todaysBest": "Today's best",
     "upcoming": "Upcoming",
     "mostLiked": "Most liked",
@@ -15,7 +41,14 @@
     "instagramReels": "Instagram\nreels",
     "youtubeShorts": "Youtube\nshorts",
     "facebookPost": "Facebook\npost",
-    "add": "Add"
+    "add": "Add",
+    "heroCta": "Explore collections",
+    "products": {
+      "goldCoin": "Gold Coin",
+      "limited": "Limited",
+      "trending": "Trending",
+      "popular": "Popular"
+    }
   },
   "content": {
     "birthdayWishes": "Birthday Wishes",
@@ -55,5 +88,135 @@
     "downloads": "Downloads",
     "liked": "Liked",
     "share": "Share"
+  },
+  "profileSetup": {
+    "header": {
+      "defaultName": "Your Profile",
+      "rolePlaceholder": "Select your category"
+    },
+    "fields": {
+      "avatarPlaceholder": "Add profile picture",
+      "fullNamePlaceholder": "Enter your fullname",
+      "mobilePlaceholder": "Enter mobile number",
+      "emailPlaceholder": "Enter email id",
+      "statePlaceholder": "Select your state",
+      "districtPlaceholder": "Select your dist",
+      "talukaPlaceholder": "Select your tahsil",
+      "dobPlaceholder": "Select DOB",
+      "dayPlaceholder": "Day",
+      "monthPlaceholder": "Month",
+      "yearPlaceholder": "Year"
+    },
+    "buttons": {
+      "continue": "Continue",
+      "upload": "Upload"
+    },
+    "months": {
+      "01": "January",
+      "02": "February",
+      "03": "March",
+      "04": "April",
+      "05": "May",
+      "06": "June",
+      "07": "July",
+      "08": "August",
+      "09": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    },
+    "footerNotice": "By continuing, you agree to our Terms of services & Privacy policy",
+    "title": "Complete your profile",
+    "subtitle": "Share a few details so we can tailor recommendations for you.",
+    "personalInformation": "Personal Information",
+    "prefixLabel": "Select prefix",
+    "firstNameLabel": "First name",
+    "middleNameLabel": "Middle name",
+    "lastNameLabel": "Last name",
+    "phoneNumberLabel": "Phone number",
+    "emailLabel": "Email address",
+    "addressLineLabel": "Address",
+    "stateLabel": "Select state",
+    "districtLabel": "Select district",
+    "talukaLabel": "Select taluka",
+    "firstNamePlaceholder": "Enter first name",
+    "middleNamePlaceholder": "Enter middle name",
+    "lastNamePlaceholder": "Enter last name",
+    "emailPlaceholder": "name@example.com",
+    "addressLinePlaceholder": "Building, street, locality",
+    "selectPlaceholder": "Tap to choose",
+    "roleSection": "Who are you?",
+    "roleLabel": "Select an option",
+    "socialSection": "Social profiles",
+    "instagramLabel": "Instagram link",
+    "facebookLabel": "Facebook link",
+    "twitterLabel": "Twitter link",
+    "instagramPlaceholder": "https://instagram.com/username",
+    "facebookPlaceholder": "https://facebook.com/username",
+    "twitterPlaceholder": "https://twitter.com/username",
+    "submitButton": "Continue",
+    "completedTitle": "Profile saved",
+    "completedMessage": "Your details have been captured successfully.",
+    "saveErrorTitle": "Couldn't save profile",
+    "saveErrorMessage": "Please try again.",
+    "translationSuggestionLabel": "Use translation",
+    "translationApplied": "Translation applied",
+    "prefixOptions": {
+      "mr": "Mr.",
+      "mrs": "Mrs.",
+      "ms": "Ms.",
+      "dr": "Dr."
+    },
+    "roleOptions": {
+      "publicFigure": "Public Figure",
+      "politicalFigure": "Political Figure",
+      "individual": "Individual",
+      "business": "Business",
+      "brand": "Brand"
+    },
+    "modals": {
+      "prefixTitle": "Choose prefix",
+      "stateTitle": "Choose state",
+      "districtTitle": "Choose district",
+      "talukaTitle": "Choose taluka",
+      "dobDayTitle": "Select day",
+      "dobMonthTitle": "Select month",
+      "dobYearTitle": "Select year",
+      "roleTitle": "Choose role",
+      "close": "Close"
+    },
+    "states": {
+      "maharashtra": {
+        "name": "Maharashtra",
+        "districts": {
+          "pune": {
+            "name": "Pune",
+            "talukas": {
+              "haveli": "Haveli",
+              "mulshi": "Mulshi"
+            }
+          },
+          "thaneDistrict": {
+            "name": "Thane",
+            "talukas": {
+              "thane": "Thane",
+              "kalyan": "Kalyan"
+            }
+          }
+        }
+      },
+      "karnataka": {
+        "name": "Karnataka",
+        "districts": {
+          "bengaluruUrbanDistrict": {
+            "name": "Bengaluru Urban",
+            "talukas": {
+              "bengaluruUrban": "Bengaluru Urban",
+              "yelahanka": "Yelahanka"
+            }
+          }
+        }
+      }
+    }
   }
 }

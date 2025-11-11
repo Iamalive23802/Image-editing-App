@@ -1,7 +1,28 @@
-import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
+import { Tabs, useRouter } from 'expo-router';
 import { Home, Heart, Plus, Download, Send } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function TabLayout() {
+  const router = useRouter();
+  const { language, profile, profileComplete } = useAuth();
+
+  useEffect(() => {
+    if (!language) {
+      router.replace('/language');
+      return;
+    }
+
+    if (!profile?.role) {
+      router.replace('/who-you-are');
+      return;
+    }
+
+    if (!profileComplete) {
+      router.replace('/profile-setup');
+    }
+  }, [language, profile?.role, profileComplete, router]);
+
   return (
     <Tabs
       screenOptions={{

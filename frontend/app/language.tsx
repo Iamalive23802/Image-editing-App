@@ -13,14 +13,14 @@ export default function LanguageScreen() {
   const languages = [
     { id: 'marathi', label: 'मराठी' },
     { id: 'hindi', label: 'हिन्दी' },
-    { id: 'english', label: 'English' },
+    { id: 'en', label: 'English' },
   ];
 
   const handleLanguageSelect = async (languageId: string) => {
     setSelectedLanguage(languageId);
     await setLanguage(languageId);
     setTimeout(() => {
-      router.replace('/(tabs)');
+      router.replace('/who-you-are');
     }, 200);
   };
 
@@ -36,10 +36,20 @@ export default function LanguageScreen() {
           {languages.map((language) => (
             <TouchableOpacity
               key={language.id}
-              style={styles.languageButton}
+              style={[
+                styles.languageButton,
+                selectedLanguage === language.id && styles.languageButtonActive,
+              ]}
               onPress={() => handleLanguageSelect(language.id)}
             >
-              <Text style={styles.languageText}>{language.label}</Text>
+              <Text
+                style={[
+                  styles.languageText,
+                  selectedLanguage === language.id && styles.languageTextActive,
+                ]}
+              >
+                {language.label}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -76,10 +86,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  languageButtonActive: {
+    backgroundColor: '#FFF',
+  },
   languageText: {
     fontSize: 24,
     fontWeight: '700',
     color: '#000',
+  },
+  languageTextActive: {
+    color: '#C73F5B',
   },
   footer: {
     fontSize: 14,

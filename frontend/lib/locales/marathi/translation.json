@@ -3,10 +3,36 @@
     "selectLanguage": "तुमची भाषा निवडा",
     "comingSoon": "अधिक भारतीय भाषांमध्ये लवकरच येत आहे"
   },
+  "whoYouAre": {
+    "title": "आपण कोण आहात ते सांगा",
+    "comingSoon": "लवकरच आणखी श्रेणी येत आहेत",
+    "categories": {
+      "politicalFigure": {
+        "label": "नेते / पक्ष सदस्य"
+      },
+      "individual": {
+        "label": "व्यक्ती / सामान्य जनता"
+      },
+      "brand": {
+        "label": "ब्रँड / कंपन्या"
+      },
+      "business": {
+        "label": "स्थानिक दुकान / सेवा पुरवठादार"
+      },
+      "publicFigure": {
+        "label": "कलाकार / सेलिब्रिटी"
+      }
+    }
+  },
   "home": {
     "userName": "विवेक पाटील",
     "userCategory": "राजकारणी",
     "celebrateDiwali": "दिवाळी\nसाजरी करा",
+    "heroSubtitle": "तुमच्यासाठी निवडलेले प्रीमियम सणासुदीचे संग्राह.",
+    "banner2Title": "शेअर करण्यास सज्ज कथा तयार करा",
+    "banner2Subtitle": "टेम्पलेट्स पटकन रिमिक्स करा आणि प्रत्येक प्लॅटफॉर्मसाठी एक्सपोर्ट करा.",
+    "banner3Title": "सेकंदात वैयक्तिकरण करा",
+    "banner3Subtitle": "स्मार्ट साधनांसह तुमचा ब्रँड, मजकूर आणि प्रतिमा जोडा.",
     "todaysBest": "आजचे सर्वोत्तम",
     "upcoming": "येत आहे",
     "mostLiked": "सर्वाधिक आवडले",
@@ -15,7 +41,14 @@
     "instagramReels": "इन्स्टाग्राम\nरील्स",
     "youtubeShorts": "यूट्यूब\nशॉर्ट्स",
     "facebookPost": "फेसबुक\nपोस्ट",
-    "add": "जोडा"
+    "add": "जोडा",
+    "heroCta": "संग्रह पाहा",
+    "products": {
+      "goldCoin": "सोनेरी नाणी",
+      "limited": "मर्यादित",
+      "trending": "ट्रेंडिंग",
+      "popular": "लोकप्रिय"
+    }
   },
   "content": {
     "birthdayWishes": "वाढदिवसाच्या शुभेच्छा",
@@ -55,5 +88,135 @@
     "downloads": "डाउनलोड्स",
     "liked": "आवडले",
     "share": "शेअर"
+  },
+  "profileSetup": {
+    "header": {
+      "defaultName": "आपली प्रोफाइल",
+      "rolePlaceholder": "आपली श्रेणी निवडा"
+    },
+    "fields": {
+      "avatarPlaceholder": "प्रोफाइल फोटो जोडा",
+      "fullNamePlaceholder": "आपले पूर्ण नाव लिहा",
+      "mobilePlaceholder": "मोबाइल क्रमांक लिहा",
+      "emailPlaceholder": "ईमेल आयडी लिहा",
+      "statePlaceholder": "आपले राज्य निवडा",
+      "districtPlaceholder": "आपला जिल्हा निवडा",
+      "talukaPlaceholder": "आपला तालुका निवडा",
+      "dobPlaceholder": "जन्मतारीख निवडा",
+      "dayPlaceholder": "दिवस",
+      "monthPlaceholder": "महिना",
+      "yearPlaceholder": "वर्ष"
+    },
+    "buttons": {
+      "continue": "पुढे जा",
+      "upload": "अपलोड करा"
+    },
+    "months": {
+      "01": "जानेवारी",
+      "02": "फेब्रुवारी",
+      "03": "मार्च",
+      "04": "एप्रिल",
+      "05": "मे",
+      "06": "जून",
+      "07": "जुलै",
+      "08": "ऑगस्ट",
+      "09": "सप्टेंबर",
+      "10": "ऑक्टोबर",
+      "11": "नोव्हेंबर",
+      "12": "डिसेंबर"
+    },
+    "footerNotice": "पुढे जाताना आपण आमच्या Terms of services आणि Privacy policy शी सहमत आहात",
+    "title": "तुमची प्रोफाइल पूर्ण करा",
+    "subtitle": "काही तपशील सांगा जेणेकरून आम्ही तुमचा अनुभव अधिक चांगला करू शकू.",
+    "personalInformation": "वैयक्तिक माहिती",
+    "prefixLabel": "पूर्वपद निवडा",
+    "firstNameLabel": "पहिले नाव",
+    "middleNameLabel": "मधले नाव",
+    "lastNameLabel": "आडनाव",
+    "phoneNumberLabel": "मोबाइल क्रमांक",
+    "emailLabel": "ईमेल पत्ता",
+    "addressLineLabel": "पत्ता",
+    "stateLabel": "राज्य निवडा",
+    "districtLabel": "जिल्हा निवडा",
+    "talukaLabel": "तालुका निवडा",
+    "firstNamePlaceholder": "पहिले नाव लिहा",
+    "middleNamePlaceholder": "मधले नाव लिहा",
+    "lastNamePlaceholder": "आडनाव लिहा",
+    "emailPlaceholder": "name@example.com",
+    "addressLinePlaceholder": "इमारत, रस्ता, परिसर",
+    "selectPlaceholder": "निवडण्यासाठी टॅप करा",
+    "roleSection": "आपण कोण आहात?",
+    "roleLabel": "एक पर्याय निवडा",
+    "socialSection": "सोशल प्रोफाइल्स",
+    "instagramLabel": "इंस्टाग्राम लिंक",
+    "facebookLabel": "फेसबुक लिंक",
+    "twitterLabel": "ट्विटर लिंक",
+    "instagramPlaceholder": "https://instagram.com/username",
+    "facebookPlaceholder": "https://facebook.com/username",
+    "twitterPlaceholder": "https://twitter.com/username",
+    "submitButton": "पुढे जा",
+    "completedTitle": "प्रोफाइल सहेजले",
+    "completedMessage": "तुमची माहिती यशस्वीरीत्या जतन केली आहे.",
+    "saveErrorTitle": "प्रोफाइल जतन करता आले नाही",
+    "saveErrorMessage": "कृपया पुन्हा प्रयत्न करा.",
+    "translationSuggestionLabel": "अनुवाद वापरा",
+    "translationApplied": "अनुवाद लागू केला",
+    "prefixOptions": {
+      "mr": "श्री.",
+      "mrs": "श्रीमती.",
+      "ms": "कुमारी",
+      "dr": "डॉ."
+    },
+    "roleOptions": {
+      "publicFigure": "जनप्रिय व्यक्ती",
+      "politicalFigure": "राजकीय व्यक्तिमत्व",
+      "individual": "व्यक्तिगत",
+      "business": "व्यवसाय",
+      "brand": "ब्रँड"
+    },
+    "modals": {
+      "prefixTitle": "पूर्वपद निवडा",
+      "stateTitle": "राज्य निवडा",
+      "districtTitle": "जिल्हा निवडा",
+      "talukaTitle": "तालुका निवडा",
+      "dobDayTitle": "दिवस निवडा",
+      "dobMonthTitle": "महिना निवडा",
+      "dobYearTitle": "वर्ष निवडा",
+      "roleTitle": "भूमिका निवडा",
+      "close": "बंद करा"
+    },
+    "states": {
+      "maharashtra": {
+        "name": "महाराष्ट्र",
+        "districts": {
+          "pune": {
+            "name": "पुणे",
+            "talukas": {
+              "haveli": "हवेली",
+              "mulshi": "मुळशी"
+            }
+          },
+          "thaneDistrict": {
+            "name": "ठाणे",
+            "talukas": {
+              "thane": "ठाणे",
+              "kalyan": "कल्याण"
+            }
+          }
+        }
+      },
+      "karnataka": {
+        "name": "कर्नाटक",
+        "districts": {
+          "bengaluruUrbanDistrict": {
+            "name": "बेंगळुरू अर्बन",
+            "talukas": {
+              "bengaluruUrban": "बेंगळुरू अर्बन",
+              "yelahanka": "येलहंका"
+            }
+          }
+        }
+      }
+    }
   }
 }

@@ -10,6 +10,23 @@ const whatsappService = require('../lib/whatsappService');
 
 const router = express.Router();
 
+const TEST_PHONE_OTPS = {
+  '9167767684': '2308',
+  '9004743487': '1234',
+  '9321987654': '5678',
+  '8080808080': '2468',
+  '9765432109': '1357',
+  '8596321470': '7890',
+};
+
+const normalizePhoneNumber = (phoneNumber = '') => {
+  const digitsOnly = (phoneNumber || '').toString().replace(/\D/g, '');
+  if (digitsOnly.length > 10) {
+    return digitsOnly.slice(-10);
+  }
+  return digitsOnly;
+};
+
 // Helper function to generate a simple token
 const generateToken = () => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -19,37 +36,42 @@ const generateToken = () => {
 router.post('/send-otp', async (req, res) => {
   try {
     const { phoneNumber } = req.body;
+    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
     
-    if (!phoneNumber) {
+    if (!phoneNumber || !normalizedPhoneNumber) {
       return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    // Clean up expired OTPs
+    whatsappService.cleanupExpiredOTPs();
+
+    const testOtp = TEST_PHONE_OTPS[normalizedPhoneNumber];
+    if (testOtp) {
+      whatsappService.storeOTP(normalizedPhoneNumber, testOtp);
+      console.log(`📱 WhatsApp OTP for testing (${phoneNumber}): ${testOtp}`);
+      return res.json({ 
+        success: true, 
+        message: 'OTP sent successfully via WhatsApp',
+        testMode: true,
+        otp: testOtp // Only for testing - remove in production
+      });
     }
 
     // Generate OTP
     const otp = whatsappService.generateOTP();
     
     // Store OTP temporarily
-    whatsappService.storeOTP(phoneNumber, otp);
+    whatsappService.storeOTP(normalizedPhoneNumber, otp);
     
-    // Clean up expired OTPs
-    whatsappService.cleanupExpiredOTPs();
-
-    // For testing: hardcoded phone number 9167767684
-    if (phoneNumber === '9167767684') {
-      console.log(`📱 WhatsApp OTP for testing: ${otp}`);
-      return res.json({ 
-        success: true, 
-        message: 'OTP sent successfully via WhatsApp',
-        testMode: true,
-        otp: otp // Only for testing - remove in production
-      });
-    }
-
     // Send OTP via WhatsApp
     try {
       const result = await whatsappService.sendOTP(phoneNumber, otp);
       
       // Create or get user
       let user = await getUserByPhone(phoneNumber);
+      if (!user && normalizedPhoneNumber !== phoneNumber) {
+        user = await getUserByPhone(normalizedPhoneNumber);
+      }
       if (!user) {
         user = await createUser(phoneNumber);
       }
@@ -64,6 +86,9 @@ router.post('/send-otp', async (req, res) => {
       console.error('WhatsApp service error:', whatsappError);
       // Fallback: still create user but indicate WhatsApp failed
       let user = await getUserByPhone(phoneNumber);
+      if (!user && normalizedPhoneNumber !== phoneNumber) {
+        user = await getUserByPhone(normalizedPhoneNumber);
+      }
       if (!user) {
         user = await createUser(phoneNumber);
       }
@@ -85,15 +110,20 @@ router.post('/send-otp', async (req, res) => {
 router.post('/verify-otp', async (req, res) => {
   try {
     const { phoneNumber, otp } = req.body;
+    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+    const inputOtp = typeof otp === 'string' ? otp.trim() : String(otp ?? '').trim();
     
-    if (!phoneNumber || !otp) {
+    if (!phoneNumber || !normalizedPhoneNumber || !inputOtp) {
       return res.status(400).json({ error: 'Phone number and OTP are required' });
     }
 
-    // For testing: hardcoded OTP 2308 for phone number 9167767684
-    if (phoneNumber === '9167767684' && otp === '2308') {
+    const testOtp = TEST_PHONE_OTPS[normalizedPhoneNumber];
+    if (testOtp && inputOtp === testOtp) {
       // First, try to get existing user or create one
       let user = await getUserByPhone(phoneNumber);
+      if (!user && normalizedPhoneNumber !== phoneNumber) {
+        user = await getUserByPhone(normalizedPhoneNumber);
+      }
       if (!user) {
         user = await createUser(phoneNumber);
       }
@@ -112,11 +142,17 @@ router.post('/verify-otp', async (req, res) => {
     }
     
     // Verify OTP using WhatsApp service
-    const isValidOTP = whatsappService.verifyOTP(phoneNumber, otp);
+    let isValidOTP = whatsappService.verifyOTP(normalizedPhoneNumber, inputOtp);
+    if (!isValidOTP && normalizedPhoneNumber !== phoneNumber) {
+      isValidOTP = whatsappService.verifyOTP(phoneNumber, inputOtp);
+    }
     
     if (isValidOTP) {
       // Get or create user
       let user = await getUserByPhone(phoneNumber);
+      if (!user && normalizedPhoneNumber !== phoneNumber) {
+        user = await getUserByPhone(normalizedPhoneNumber);
+      }
       if (!user) {
         user = await createUser(phoneNumber);
       }

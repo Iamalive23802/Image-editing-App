@@ -84,16 +84,32 @@ class WhatsAppService {
 
   // Store OTP temporarily (in production, use Redis or database)
   storeOTP(phoneNumber, otp) {
+    if (otp === undefined || otp === null) {
+      return;
+    }
     const expiry = Date.now() + (10 * 60 * 1000); // 10 minutes
     if (!this.otpStore) {
       this.otpStore = new Map();
     }
-    this.otpStore.set(phoneNumber, { otp, expiry });
+    const otpValue = typeof otp === 'string' ? otp.trim() : String(otp).trim();
+    if (!otpValue) {
+      return;
+    }
+    this.otpStore.set(phoneNumber, { otp: otpValue, expiry });
   }
 
   // Verify OTP
   verifyOTP(phoneNumber, inputOTP) {
     if (!this.otpStore) {
+      return false;
+    }
+    
+    if (inputOTP === undefined || inputOTP === null) {
+      return false;
+    }
+    
+    const providedOtp = typeof inputOTP === 'string' ? inputOTP.trim() : String(inputOTP).trim();
+    if (!providedOtp) {
       return false;
     }
     
@@ -109,7 +125,7 @@ class WhatsAppService {
     }
     
     // Check if OTP matches
-    if (stored.otp === inputOTP) {
+    if (stored.otp === providedOtp) {
       this.otpStore.delete(phoneNumber);
       return true;
     }

@@ -11,6 +11,32 @@ export default function OTPScreen() {
   const inputRefs = useRef<Array<TextInput | null>>([]);
   const { verifyOTP } = useAuth();
 
+  const routeAfterVerification = (result: { success: boolean; hasLanguage?: boolean; hasRole?: boolean; profileComplete?: boolean }) => {
+    if (!result.success) {
+      return;
+    }
+
+    if (!result.hasLanguage) {
+      router.replace('/language');
+      return;
+    }
+
+    if (!result.hasRole) {
+      router.replace('/who-you-are');
+      return;
+    }
+
+    if (!result.profileComplete) {
+      router.replace('/profile-setup');
+      return;
+    }
+
+    if (result.profileComplete) {
+      router.replace('/(tabs)');
+      return;
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
@@ -32,11 +58,9 @@ export default function OTPScreen() {
     if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 4) {
       // Verify OTP with authentication context
       const otpString = newOtp.join('');
-      const isValid = await verifyOTP(phone || '', otpString);
-      if (isValid) {
-        setTimeout(() => {
-          router.replace('/language');
-        }, 300);
+      const result = await verifyOTP(phone || '', otpString);
+      if (result.success) {
+        routeAfterVerification(result);
       } else {
         // Show error or reset OTP
         setOtp(['', '', '', '']);
@@ -84,9 +108,9 @@ export default function OTPScreen() {
           style={styles.loginButton}
           onPress={async () => {
             const otpString = otp.join('');
-            const isValid = await verifyOTP(phone || '', otpString);
-            if (isValid) {
-              router.replace('/language');
+            const result = await verifyOTP(phone || '', otpString);
+            if (result.success) {
+              routeAfterVerification(result);
             } else {
               // Show error or reset OTP
               setOtp(['', '', '', '']);

@@ -10,7 +10,21 @@ export interface User {
   phone_number: string;
   created_at: string;
   updated_at: string;
-  language?: string;
+  language?: string | null;
+  prefix?: string | null;
+  first_name?: string | null;
+  middle_name?: string | null;
+  last_name?: string | null;
+  date_of_birth?: string | null;
+  email?: string | null;
+  address_line?: string | null;
+  state?: string | null;
+  district?: string | null;
+  taluka?: string | null;
+  role?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  twitter_url?: string | null;
 }
 
 export interface Session {
@@ -21,15 +35,59 @@ export interface Session {
   created_at: string;
 }
 
+export interface UserProfile {
+  prefix: string | null;
+  firstName: string | null;
+  middleName: string | null;
+  lastName: string | null;
+  dateOfBirth: string | null;
+  email: string | null;
+  addressLine: string | null;
+  state: string | null;
+  district: string | null;
+  taluka: string | null;
+  role: string | null;
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  twitterUrl: string | null;
+}
+
+export interface UpdateProfileInput {
+  prefix?: string | null;
+  firstName?: string | null;
+  middleName?: string | null;
+  lastName?: string | null;
+  dateOfBirth?: string | null;
+  email?: string | null;
+  addressLine?: string | null;
+  state?: string | null;
+  district?: string | null;
+  taluka?: string | null;
+  role?: string | null;
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  twitterUrl?: string | null;
+}
+
+interface VerifyOtpResult {
+  success: boolean;
+  hasLanguage?: boolean;
+  hasRole?: boolean;
+  profileComplete?: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   language: string | null;
+  profile: UserProfile | null;
+  profileComplete: boolean;
   setLanguage: (lang: string) => void;
   signOut: () => Promise<void>;
   signInWithPhone: (phoneNumber: string) => Promise<void>;
-  verifyOTP: (phoneNumber: string, otp: string) => Promise<boolean>;
+  verifyOTP: (phoneNumber: string, otp: string) => Promise<VerifyOtpResult>;
+  updateProfile: (profile: UpdateProfileInput) => Promise<UserProfile | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,11 +96,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   const response = await fetch(url, {
+    ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers ?? {}),
     },
-    ...options,
   });
 
   if (!response.ok) {
@@ -58,6 +116,99 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileComplete, setProfileComplete] = useState(false);
+
+  const mapApiProfileToState = (data: any): UserProfile | null => {
+    if (!data) {
+      return null;
+    }
+
+    return {
+      prefix: data.prefix ?? null,
+      firstName: data.first_name ?? null,
+      middleName: data.middle_name ?? null,
+      lastName: data.last_name ?? null,
+      dateOfBirth: data.date_of_birth ?? null,
+      email: data.email ?? null,
+      addressLine: data.address_line ?? null,
+      state: data.state ?? null,
+      district: data.district ?? null,
+      taluka: data.taluka ?? null,
+      role: data.role ?? null,
+      instagramUrl: data.instagram_url ?? null,
+      facebookUrl: data.facebook_url ?? null,
+      twitterUrl: data.twitter_url ?? null,
+    };
+  };
+
+  const mapStateProfileToApi = (data: UpdateProfileInput) => ({
+    prefix: data.prefix ?? null,
+    first_name: data.firstName ?? null,
+    middle_name: data.middleName ?? null,
+    last_name: data.lastName ?? null,
+    date_of_birth: data.dateOfBirth ?? null,
+    email: data.email ?? null,
+    address_line: data.addressLine ?? null,
+    state: data.state ?? null,
+    district: data.district ?? null,
+    taluka: data.taluka ?? null,
+    role: data.role ?? null,
+    instagram_url: data.instagramUrl ?? null,
+    facebook_url: data.facebookUrl ?? null,
+    twitter_url: data.twitterUrl ?? null,
+  });
+
+  const isProfileComplete = (profileData: UserProfile | null): boolean => {
+    if (!profileData) {
+      return false;
+    }
+
+    return Boolean(
+      profileData.firstName &&
+      profileData.lastName &&
+      profileData.dateOfBirth &&
+      profileData.email &&
+      profileData.state &&
+      profileData.district &&
+      profileData.taluka &&
+      profileData.role
+    );
+  };
+
+  const loadUserProfile = async (token: string): Promise<{
+    user: User | null;
+    profile: UserProfile | null;
+    profileComplete: boolean;
+  } | null> => {
+    try {
+      const userData = await apiCall('/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      let latestUser: User | null = null;
+      if (userData.success && userData.user) {
+        setUser(userData.user);
+        const storedLanguage: string | null = userData.user.language ?? null;
+        setLanguage(storedLanguage);
+        i18n.changeLanguage(storedLanguage || 'en');
+        latestUser = userData.user;
+      }
+
+      const mappedProfile = mapApiProfileToState(userData.user);
+      setProfile(mappedProfile);
+      const complete = isProfileComplete(mappedProfile);
+      setProfileComplete(complete);
+      return { user: latestUser, profile: mappedProfile, profileComplete: complete };
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+      setProfile(null);
+      setProfileComplete(false);
+      return null;
+    }
+  };
 
   useEffect(() => {
     // Check for existing session in localStorage
@@ -72,21 +223,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
           
           if (data.success && data.session) {
-            // Get user profile
-            const userData = await apiCall('/users/profile', {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            
-            if (userData.success && userData.user) {
-              setSession(data.session);
-              setUser(userData.user);
-              const userLanguage = userData.user.language || 'en';
-              setLanguage(userLanguage);
-              // Set i18n language
-              i18n.changeLanguage(userLanguage);
-            }
+            setSession(data.session);
+            await loadUserProfile(token);
           }
         }
       } catch (error) {
@@ -113,7 +251,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const verifyOTP = async (phoneNumber: string, otp: string): Promise<boolean> => {
+  const verifyOTP = async (phoneNumber: string, otp: string): Promise<VerifyOtpResult> => {
     try {
       const data = await apiCall('/auth/verify-otp', {
         method: 'POST',
@@ -126,16 +264,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setSession(data.session);
         setUser(data.user);
-        const userLanguage = data.user.language || 'en';
-        setLanguage(userLanguage);
+        const storedLanguage: string | null = data.user.language ?? null;
+        setLanguage(storedLanguage);
         // Set i18n language
-        i18n.changeLanguage(userLanguage);
-        return true;
+        i18n.changeLanguage(storedLanguage || 'en');
+        const loaded = await loadUserProfile(data.token);
+        const activeProfile = loaded?.profile ?? mapApiProfileToState(data.user);
+        const hasLanguage = Boolean(storedLanguage || loaded?.user?.language);
+        const hasRole = Boolean(activeProfile?.role);
+        const profileIsComplete =
+          loaded?.profileComplete ?? isProfileComplete(activeProfile ?? null);
+        return { success: true, hasLanguage, hasRole, profileComplete: profileIsComplete };
       }
-      return false;
+      return { success: false };
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      return false;
+      return { success: false };
     }
   };
 
@@ -157,6 +301,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setSession(null);
       setLanguage(null);
+      setProfile(null);
+      setProfileComplete(false);
+    }
+  };
+
+  const updateProfileDetails = async (
+    input: UpdateProfileInput
+  ): Promise<UserProfile | null> => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const payload = mapStateProfileToApi(input);
+      const response = await apiCall('/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const normalized = mapApiProfileToState(response.user);
+      if (response.user) {
+        setUser(response.user);
+      }
+      setProfile(normalized);
+      setProfileComplete(isProfileComplete(normalized));
+      return normalized;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
     }
   };
 
@@ -176,6 +353,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             },
             body: JSON.stringify({ language: lang }),
           });
+          setUser((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  language: lang,
+                }
+              : prev
+          );
         }
       } catch (error) {
         console.error('Error updating user language:', error);
@@ -189,10 +374,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session, 
       loading, 
       language, 
+      profile,
+      profileComplete,
       setLanguage: handleSetLanguage, 
       signOut,
       signInWithPhone,
-      verifyOTP
+      verifyOTP,
+      updateProfile: updateProfileDetails
     }}>
       {children}
     </AuthContext.Provider>

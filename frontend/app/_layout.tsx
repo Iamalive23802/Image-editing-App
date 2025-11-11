@@ -14,6 +14,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="otp" />
         <Stack.Screen name="language" />
+        <Stack.Screen name="profile-setup" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>
