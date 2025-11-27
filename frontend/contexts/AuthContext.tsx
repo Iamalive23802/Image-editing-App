@@ -227,7 +227,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         latestUser = userData.user;
       }
 
-      const mappedProfile = mapApiProfileToState(userData.user);
+      // Prefer explicit profile payload when available to determine navigation flow
+      const profileSource = userData.profile ?? userData.user;
+      const mappedProfile = mapApiProfileToState(profileSource);
       setProfile(mappedProfile);
       const complete = isProfileComplete(mappedProfile);
       setProfileComplete(complete);
@@ -302,7 +304,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Set i18n language
         i18n.changeLanguage(storedLanguage || 'en');
         const loaded = await loadUserProfile(data.token);
-        const activeProfile = loaded?.profile ?? mapApiProfileToState(data.user);
+        const activeProfile = loaded?.profile ?? mapApiProfileToState(data.profile ?? data.user);
         const hasLanguage = Boolean(storedLanguage || loaded?.user?.language);
         const hasRole = Boolean(activeProfile?.role);
         const profileIsComplete =
@@ -359,7 +361,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(payload),
       });
 
-      const normalized = mapApiProfileToState(response.user);
+      const normalized = mapApiProfileToState(response.profile ?? response.user);
       if (response.user) {
         setUser(response.user);
       }
