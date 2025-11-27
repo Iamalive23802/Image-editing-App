@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import {
   Alert,
+  Image,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -102,10 +106,60 @@ const composeDob = (parts: { day: string; month: string; year: string }) => {
   return `${year}-${month}-${day}`;
 };
 
+const extractDobParts = (value: string | null | undefined) => {
+  if (!value) {
+    return { day: '', month: '', year: '' };
+  }
+
+  // Convert to string if it's a Date object
+  let dateString = value;
+  if (value instanceof Date) {
+    // If it's a Date object, format it as YYYY-MM-DD in local timezone
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return { day, month, year: String(year) };
+  }
+
+  // Handle ISO date strings (with or without time)
+  // Examples: "2015-08-06", "2015-08-06T00:00:00.000Z", "2015-08-06T18:30:00.000Z"
+  // IMPORTANT: Use only the date part, ignore time to avoid timezone shifts
+  const datePart = String(dateString).split('T')[0].split(' ')[0].trim();
+  const parts = datePart.split('-');
+  
+  if (parts.length !== 3) {
+    console.warn('Invalid date format:', value, 'extracted as:', datePart);
+    return { day: '', month: '', year: '' };
+  }
+
+  const [year = '', month = '', day = ''] = parts;
+
+  // Validate and pad
+  const dayNum = parseInt(day, 10);
+  const monthNum = parseInt(month, 10);
+  const yearNum = parseInt(year, 10);
+
+  if (isNaN(dayNum) || isNaN(monthNum) || isNaN(yearNum)) {
+    console.warn('Invalid date numbers:', { day, month, year });
+    return { day: '', month: '', year: '' };
+  }
+
+  return {
+    day: String(dayNum).padStart(2, '0'),
+    month: String(monthNum).padStart(2, '0'),
+    year: String(yearNum),
+  };
+};
+
+const normalizeDobString = (value: string | null | undefined) => {
+  const parts = extractDobParts(value);
+  return composeDob(parts);
+};
+
 export default function ProfileSetupScreen() {
   const { t } = useTranslation();
   const { user, profile: savedProfile, updateProfile: saveProfile, language } = useAuth();
-  const params = useLocalSearchParams<{ role?: string }>();
+  const params = useLocalSearchParams<{ role?: string; fromProfile?: string }>();
 
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -120,8 +174,51 @@ export default function ProfileSetupScreen() {
     avatar: null,
     dob: '',
   });
-  const handleAvatarSelect = () => {
-    // Placeholder handler for selecting an avatar.
+  const handleAvatarSelect = async () => {
+    try {
+      // Request permission to access media library
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert(
+          t('profileSetup.permissions.title') || 'Permission Required',
+          t('profileSetup.permissions.message') || 'We need permission to access your photos to set a profile picture.',
+        );
+        return;
+      }
+
+      // Launch image picker with base64 option to persist the image
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+        base64: true, // Get base64 data to persist the image
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+        let imageUri = asset.uri;
+        
+        // Convert to base64 data URI for persistence across sessions
+        if (asset.base64) {
+          const mimeType = asset.type || 'image/jpeg';
+          imageUri = `data:${mimeType};base64,${asset.base64}`;
+          console.log('Converted image to base64 data URI');
+        } else {
+          console.warn('Base64 data not available, using URI (may not persist)');
+        }
+        
+        console.log('Selected avatar URI:', imageUri.substring(0, 50) + '...');
+        updateProfileField('avatar', imageUri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert(
+        t('profileSetup.imageError.title') || 'Error',
+        t('profileSetup.imageError.message') || 'Failed to select image. Please try again.',
+      );
+    }
   };
   const [dobParts, setDobParts] = useState<{ day: string; month: string; year: string }>({
     day: '',
@@ -144,6 +241,18 @@ export default function ProfileSetupScreen() {
 
     const fullName = formatName(savedProfile.firstName, savedProfile.middleName, savedProfile.lastName);
 
+    // Extract and normalize DOB
+    const dobParts = extractDobParts(savedProfile.dateOfBirth);
+    const normalizedDob = savedProfile.dateOfBirth ? normalizeDobString(savedProfile.dateOfBirth) : '';
+    
+    console.log('Loading profile DOB:', {
+      original: savedProfile.dateOfBirth,
+      originalType: typeof savedProfile.dateOfBirth,
+      normalized: normalizedDob,
+      parts: dobParts,
+      recomposed: composeDob(dobParts)
+    });
+    
     setProfile((prev) => ({
       ...prev,
       fullName,
@@ -152,18 +261,10 @@ export default function ProfileSetupScreen() {
       district: (savedProfile.district ?? '') as LocationDistrict | '',
       taluka: (savedProfile.taluka ?? '') as LocationTaluka | '',
       role: isRoleOption(savedProfile.role) ? (savedProfile.role as RoleOption) : prev.role,
-      dob: savedProfile.dateOfBirth ?? '',
+      dob: normalizedDob,
+      avatar: savedProfile.avatarUrl ?? null,
     }));
-    if (savedProfile.dateOfBirth) {
-      const [year = '', month = '', day = ''] = savedProfile.dateOfBirth.split('-');
-      setDobParts({
-        day: day.padStart(2, '0'),
-        month: month.padStart(2, '0'),
-        year,
-      });
-    } else {
-      setDobParts({ day: '', month: '', year: '' });
-    }
+    setDobParts(dobParts);
     setRomanFullName(fullName);
     setFullNameTranslationApplied(false);
     setFullNameSuggestion(null);
@@ -367,23 +468,86 @@ export default function ProfileSetupScreen() {
           : romanFullName;
       const nameParts = baseFullName.trim().split(/\s+/).filter(Boolean);
       const firstName = nameParts[0] ?? '';
-      const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+      // If only one name part, use it as both first and last name
+      const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] ?? '');
       const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
+
+      // Reconstruct DOB from parts to ensure correct format (YYYY-MM-DD)
+      const dobToSave = dobParts.day && dobParts.month && dobParts.year 
+        ? composeDob(dobParts) 
+        : profile.dob;
 
       const payload: UpdateProfileInput = {
         firstName: toNullable(firstName || profile.fullName),
         middleName: toNullable(middleName),
-        lastName: toNullable(lastName),
-        dateOfBirth: toNullable(profile.dob),
+        lastName: toNullable(lastName || firstName || profile.fullName),
+        dateOfBirth: toNullable(dobToSave),
         email: toNullable(profile.email),
         state: profile.state ? profile.state : null,
         district: profile.district ? profile.district : null,
         taluka: profile.taluka ? profile.taluka : null,
         role: profile.role ? profile.role : null,
+        avatarUrl: profile.avatar ?? null,
       };
 
-      await saveProfile(payload);
-      router.replace('/(tabs)');
+      console.log('Saving profile with payload:', payload);
+      console.log('DOB details:', { 
+        dobFromState: profile.dob, 
+        dobParts, 
+        dobToSave,
+        composed: composeDob(dobParts)
+      });
+      const savedProfile = await saveProfile(payload);
+      console.log('Profile saved successfully:', savedProfile);
+      
+      // Verify profile is complete before navigating
+      if (savedProfile) {
+        const missingFields: string[] = [];
+        if (!savedProfile.firstName) missingFields.push('First Name');
+        if (!savedProfile.lastName) missingFields.push('Last Name');
+        if (!savedProfile.dateOfBirth) missingFields.push('Date of Birth');
+        if (!savedProfile.email) missingFields.push('Email');
+        if (!savedProfile.state) missingFields.push('State');
+        if (!savedProfile.district) missingFields.push('District');
+        if (!savedProfile.taluka) missingFields.push('Taluka');
+        if (!savedProfile.role) missingFields.push('Role');
+        
+        const isComplete = missingFields.length === 0;
+        
+        console.log('Profile complete status:', isComplete);
+        console.log('Saved profile data:', {
+          firstName: savedProfile.firstName,
+          lastName: savedProfile.lastName,
+          dateOfBirth: savedProfile.dateOfBirth,
+          email: savedProfile.email,
+          state: savedProfile.state,
+          district: savedProfile.district,
+          taluka: savedProfile.taluka,
+          role: savedProfile.role,
+        });
+        
+        // If coming from profile page, always navigate to home after saving
+        // Otherwise, only navigate if profile is complete (initial setup flow)
+        const isEditingFromProfile = params.fromProfile === 'true';
+        
+        if (isComplete || isEditingFromProfile) {
+          // Small delay to ensure state updates propagate
+          await new Promise(resolve => setTimeout(resolve, 150));
+          
+          // Always navigate to home page after saving (whether from profile edit or initial setup)
+          router.replace('/(tabs)');
+        } else {
+          console.warn('Profile is not complete, missing fields:', missingFields);
+          const missingFieldsText = missingFields.join(', ');
+          Alert.alert(
+            t('profileSetup.incompleteTitle') || 'Incomplete Profile',
+            t('profileSetup.incompleteMessage', { missingFields: missingFieldsText }) || 
+            `Please fill in all required fields: ${missingFieldsText}`
+          );
+        }
+      } else {
+        throw new Error('Profile save returned null');
+      }
     } catch (error) {
       console.error('Failed to save profile:', error);
       Alert.alert(t('profileSetup.saveErrorTitle'), t('profileSetup.saveErrorMessage'));
@@ -460,24 +624,42 @@ export default function ProfileSetupScreen() {
 
   return (
     <LinearGradient colors={['#E75C6F', '#C73F5B']} style={styles.background}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          scrollEnabled={false}
+          bounces={false}
+        >
         <View style={styles.headerCard}>
           <TouchableOpacity style={styles.avatarButton} onPress={handleAvatarSelect} activeOpacity={0.85}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{initials}</Text>
-        </View>
+              {profile.avatar ? (
+                <Image 
+                  source={{ uri: profile.avatar }} 
+                  style={styles.avatarImage}
+                  resizeMode="cover"
+                  onError={(error) => {
+                    console.error('Error loading avatar in profile-setup:', error);
+                    console.error('Failed URI:', profile.avatar);
+                  }}
+                  onLoad={() => {
+                    console.log('Avatar loaded successfully in profile-setup:', profile.avatar);
+                  }}
+                />
+              ) : (
+                <Text style={styles.avatarText}>{initials}</Text>
+              )}
+            </View>
             <LinearGradient colors={['#FDD835', '#F6B845']} style={styles.avatarBadge}>
-              <Text style={styles.avatarBadgeLabel}>+</Text>
+              <Text style={styles.avatarBadgeLabel}>{profile.avatar ? '✎' : '+'}</Text>
             </LinearGradient>
           </TouchableOpacity>
           <Text style={styles.headerName}>{displayName}</Text>
           <Text style={styles.headerRole}>{roleLabel}</Text>
-          <TouchableOpacity style={styles.avatarUpload} onPress={handleAvatarSelect} activeOpacity={0.85}>
-            <Text style={styles.avatarUploadText}>{t('profileSetup.buttons.upload')}</Text>
-                </TouchableOpacity>
           <View style={styles.headerDivider} />
             </View>
 
@@ -659,7 +841,8 @@ export default function ProfileSetupScreen() {
         </View>
 
         <Text style={styles.footerNote}>{t('profileSetup.footerNotice')}</Text>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {renderSelectionModal({
         modalType: 'state',
@@ -695,38 +878,42 @@ export default function ProfileSetupScreen() {
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   background: {
     flex: 1,
   },
   content: {
     flexGrow: 1,
-    paddingHorizontal: 28,
-    paddingTop: 80,
-    paddingBottom: 40,
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    paddingBottom: 24,
+    justifyContent: 'space-between',
   },
   headerCard: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 20,
   },
   avatarButton: {
     position: 'relative',
   },
   avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 18,
+    marginBottom: 12,
   },
   avatarBadge: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -744,20 +931,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
   },
-  avatarUpload: {
-    marginTop: -6,
-    marginBottom: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
-    backgroundColor: 'rgba(255,255,255,0.12)',
-  },
-  avatarUploadText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
+  avatarImage: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
   },
   headerName: {
     fontSize: 26,
@@ -775,16 +952,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: StyleSheet.hairlineWidth,
     backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    marginTop: 24,
+    marginTop: 16,
   },
   form: {
-    gap: 16,
+    gap: 12,
   },
   inputWrapper: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     shadowColor: '#D74F6A',
     shadowOpacity: 0.2,
     shadowRadius: 12,
@@ -829,9 +1006,9 @@ const styles = StyleSheet.create({
   },
   dropdownWrapper: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -853,17 +1030,17 @@ const styles = StyleSheet.create({
   },
   dobRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 12,
-    marginBottom: 8,
+    gap: 10,
+    marginTop: 8,
+    marginBottom: 4,
   },
   dobField: {
     flex: 1,
   },
   submitButton: {
     backgroundColor: '#FDD835',
-    borderRadius: 18,
-    paddingVertical: 18,
+    borderRadius: 16,
+    paddingVertical: 14,
     alignItems: 'center',
     marginTop: 12,
     shadowColor: '#D74F6A',
@@ -881,7 +1058,7 @@ const styles = StyleSheet.create({
     color: '#3C2900',
   },
   footerNote: {
-    marginTop: 28,
+    marginTop: 16,
     fontSize: 12,
     textAlign: 'center',
     color: 'rgba(255, 255, 255, 0.75)',

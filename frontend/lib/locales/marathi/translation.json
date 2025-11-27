@@ -159,6 +159,8 @@
     "completedMessage": "तुमची माहिती यशस्वीरीत्या जतन केली आहे.",
     "saveErrorTitle": "प्रोफाइल जतन करता आले नाही",
     "saveErrorMessage": "कृपया पुन्हा प्रयत्न करा.",
+    "incompleteTitle": "अपूर्ण प्रोफाइल",
+    "incompleteMessage": "कृपया सर्व आवश्यक फील्ड भरा: {missingFields}",
     "translationSuggestionLabel": "अनुवाद वापरा",
     "translationApplied": "अनुवाद लागू केला",
     "prefixOptions": {

@@ -8,19 +8,24 @@ export default function TabLayout() {
   const { language, profile, profileComplete } = useAuth();
 
   useEffect(() => {
-    if (!language) {
-      router.replace('/language');
-      return;
-    }
+    // Add a small delay to allow state to settle after profile updates
+    const timeoutId = setTimeout(() => {
+      if (!language) {
+        router.replace('/language');
+        return;
+      }
 
-    if (!profile?.role) {
-      router.replace('/who-you-are');
-      return;
-    }
+      if (!profile?.role) {
+        router.replace('/who-you-are');
+        return;
+      }
 
-    if (!profileComplete) {
-      router.replace('/profile-setup');
-    }
+      if (!profileComplete) {
+        router.replace('/profile-setup');
+      }
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [language, profile?.role, profileComplete, router]);
 
   return (

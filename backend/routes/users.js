@@ -82,7 +82,21 @@ router.put('/profile', authenticateToken, async (req, res) => {
       instagram_url,
       facebook_url,
       twitter_url,
+      avatar_url,
     } = req.body || {};
+
+    console.log('Updating profile for user:', req.userId);
+    console.log('Profile data received:', {
+      first_name,
+      last_name,
+      date_of_birth,
+      date_of_birth_type: typeof date_of_birth,
+      email,
+      state,
+      district,
+      taluka,
+      role,
+    });
 
     const user = await updateUserDetails(req.userId, {
       prefix: prefix ?? null,
@@ -99,6 +113,16 @@ router.put('/profile', authenticateToken, async (req, res) => {
       instagram_url: instagram_url ?? null,
       facebook_url: facebook_url ?? null,
       twitter_url: twitter_url ?? null,
+      avatar_url: avatar_url ?? null,
+    });
+
+    console.log('Profile updated successfully:', {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      date_of_birth: user.date_of_birth,
+      date_of_birth_type: typeof user.date_of_birth,
+      date_of_birth_stringified: String(user.date_of_birth),
     });
 
     res.json({ success: true, user });

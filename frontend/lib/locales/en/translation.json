@@ -159,6 +159,8 @@
     "completedMessage": "Your details have been captured successfully.",
     "saveErrorTitle": "Couldn't save profile",
     "saveErrorMessage": "Please try again.",
+    "incompleteTitle": "Incomplete Profile",
+    "incompleteMessage": "Please fill in all required fields: {missingFields}",
     "translationSuggestionLabel": "Use translation",
     "translationApplied": "Translation applied",
     "prefixOptions": {

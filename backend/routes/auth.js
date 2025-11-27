@@ -113,11 +113,28 @@ router.post('/verify-otp', async (req, res) => {
     const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
     const inputOtp = typeof otp === 'string' ? otp.trim() : String(otp ?? '').trim();
     
+    console.log('OTP Verification Request:', {
+      phoneNumber,
+      normalizedPhoneNumber,
+      inputOtp,
+      testPhones: Object.keys(TEST_PHONE_OTPS)
+    });
+    
     if (!phoneNumber || !normalizedPhoneNumber || !inputOtp) {
       return res.status(400).json({ error: 'Phone number and OTP are required' });
     }
 
-    const testOtp = TEST_PHONE_OTPS[normalizedPhoneNumber];
+    // Check both normalized and original phone number for test OTP
+    const testOtp = TEST_PHONE_OTPS[normalizedPhoneNumber] || TEST_PHONE_OTPS[phoneNumber];
+    console.log('Test OTP lookup:', { 
+      phoneNumber, 
+      normalizedPhoneNumber, 
+      testOtp, 
+      inputOtp, 
+      match: testOtp === inputOtp,
+      testPhones: Object.keys(TEST_PHONE_OTPS)
+    });
+    
     if (testOtp && inputOtp === testOtp) {
       // First, try to get existing user or create one
       let user = await getUserByPhone(phoneNumber);

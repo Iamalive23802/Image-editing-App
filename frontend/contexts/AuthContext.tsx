@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../lib/i18n';
 
 // API Configuration
@@ -50,6 +51,7 @@ export interface UserProfile {
   instagramUrl: string | null;
   facebookUrl: string | null;
   twitterUrl: string | null;
+  avatarUrl: string | null;
 }
 
 export interface UpdateProfileInput {
@@ -67,6 +69,7 @@ export interface UpdateProfileInput {
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   twitterUrl?: string | null;
+  avatarUrl?: string | null;
 }
 
 interface VerifyOtpResult {
@@ -91,6 +94,31 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const hasWindowStorage = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+
+const storage = {
+  getItem: async (key: string) => {
+    if (hasWindowStorage) {
+      return window.localStorage.getItem(key);
+    }
+    return AsyncStorage.getItem(key);
+  },
+  setItem: async (key: string, value: string) => {
+    if (hasWindowStorage) {
+      window.localStorage.setItem(key, value);
+      return;
+    }
+    await AsyncStorage.setItem(key, value);
+  },
+  removeItem: async (key: string) => {
+    if (hasWindowStorage) {
+      window.localStorage.removeItem(key);
+      return;
+    }
+    await AsyncStorage.removeItem(key);
+  },
+};
 
 // API helper functions
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
@@ -139,6 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       instagramUrl: data.instagram_url ?? null,
       facebookUrl: data.facebook_url ?? null,
       twitterUrl: data.twitter_url ?? null,
+      avatarUrl: data.avatar_url ?? null,
     };
   };
 
@@ -157,6 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     instagram_url: data.instagramUrl ?? null,
     facebook_url: data.facebookUrl ?? null,
     twitter_url: data.twitterUrl ?? null,
+    avatar_url: data.avatarUrl ?? null,
   });
 
   const isProfileComplete = (profileData: UserProfile | null): boolean => {
@@ -211,10 +241,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Check for existing session in localStorage
+    // Check for existing session in storage
     const checkExistingSession = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
+        const token = await storage.getItem('auth_token');
         if (token) {
           const data = await apiCall('/auth/verify-session', {
             headers: {
@@ -230,7 +260,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Error checking existing session:', error);
         // Clear invalid token
-        localStorage.removeItem('auth_token');
+        await storage.removeItem('auth_token');
       } finally {
         setLoading(false);
       }
@@ -253,14 +283,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const verifyOTP = async (phoneNumber: string, otp: string): Promise<VerifyOtpResult> => {
     try {
+      console.log('Verifying OTP:', { phoneNumber, otp });
       const data = await apiCall('/auth/verify-otp', {
         method: 'POST',
         body: JSON.stringify({ phoneNumber, otp }),
       });
       
+      console.log('OTP verification response:', data);
+      
       if (data.success) {
-        // Store token in localStorage
-        localStorage.setItem('auth_token', data.token);
+        // Store token in persistent storage
+        await storage.setItem('auth_token', data.token);
         
         setSession(data.session);
         setUser(data.user);
@@ -276,16 +309,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           loaded?.profileComplete ?? isProfileComplete(activeProfile ?? null);
         return { success: true, hasLanguage, hasRole, profileComplete: profileIsComplete };
       }
+      console.warn('OTP verification failed:', data);
       return { success: false };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error verifying OTP:', error);
+      console.error('Error details:', error.message, error.response?.data || error);
       return { success: false };
     }
   };
 
   const signOut = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = await storage.getItem('auth_token');
       if (token) {
         await apiCall('/auth/logout', {
           method: 'POST',
@@ -293,7 +328,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             'Authorization': `Bearer ${token}`
           }
         });
-        localStorage.removeItem('auth_token');
+        await storage.removeItem('auth_token');
       }
     } catch (error) {
       console.error('Error signing out:', error);
@@ -310,7 +345,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     input: UpdateProfileInput
   ): Promise<UserProfile | null> => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = await storage.getItem('auth_token');
       if (!token) {
         throw new Error('Not authenticated');
       }
@@ -344,7 +379,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     if (user) {
       try {
-        const token = localStorage.getItem('auth_token');
+        const token = await storage.getItem('auth_token');
         if (token) {
           await apiCall('/users/language', {
             method: 'PUT',

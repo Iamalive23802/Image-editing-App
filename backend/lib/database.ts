@@ -61,6 +61,7 @@ export interface User {
   instagram_url: string | null;
   facebook_url: string | null;
   twitter_url: string | null;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -94,6 +95,7 @@ export async function createUser(phoneNumber: string): Promise<User> {
       instagram_url: null,
       facebook_url: null,
       twitter_url: null,
+      avatar_url: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       language: null,
@@ -144,7 +146,24 @@ export async function getUserById(id: string): Promise<User | null> {
   try {
     const query = 'SELECT * FROM users WHERE id = $1';
     const result = await client.query(query, [id]);
-    return result.rows[0] || null;
+    const user = result.rows[0] || null;
+    
+    // Format date_of_birth as YYYY-MM-DD string to avoid timezone issues
+    if (user && user.date_of_birth) {
+      if (user.date_of_birth instanceof Date) {
+        // If it's a Date object, format it as YYYY-MM-DD
+        const year = user.date_of_birth.getFullYear();
+        const month = String(user.date_of_birth.getMonth() + 1).padStart(2, '0');
+        const day = String(user.date_of_birth.getDate()).padStart(2, '0');
+        user.date_of_birth = `${year}-${month}-${day}`;
+      } else if (typeof user.date_of_birth === 'string' && user.date_of_birth.includes('T')) {
+        // If it's an ISO string with time, extract just the date part
+        user.date_of_birth = user.date_of_birth.split('T')[0];
+      }
+      console.log('User date_of_birth from DB:', user.date_of_birth, typeof user.date_of_birth);
+    }
+    
+    return user;
   } finally {
     client.release();
   }
@@ -219,6 +238,7 @@ export interface UpdateUserDetailsInput {
   instagram_url?: string | null;
   facebook_url?: string | null;
   twitter_url?: string | null;
+  avatar_url?: string | null;
 }
 
 export async function updateUserDetails(
@@ -240,6 +260,7 @@ export async function updateUserDetails(
     instagram_url: details.instagram_url,
     facebook_url: details.facebook_url,
     twitter_url: details.twitter_url,
+    avatar_url: details.avatar_url,
   };
 
   if (isBrowser || !pool) {
@@ -269,6 +290,7 @@ export async function updateUserDetails(
           instagram_url: null,
           facebook_url: null,
           twitter_url: null,
+          avatar_url: null,
           created_at: now,
           updated_at: now,
         };
@@ -315,7 +337,25 @@ export async function updateUserDetails(
     if (!result.rows[0]) {
       throw new Error('User not found');
     }
-    return result.rows[0];
+    
+    const user = result.rows[0];
+    
+    // Format date_of_birth as YYYY-MM-DD string to avoid timezone issues
+    if (user.date_of_birth) {
+      if (user.date_of_birth instanceof Date) {
+        // If it's a Date object, format it as YYYY-MM-DD
+        const year = user.date_of_birth.getFullYear();
+        const month = String(user.date_of_birth.getMonth() + 1).padStart(2, '0');
+        const day = String(user.date_of_birth.getDate()).padStart(2, '0');
+        user.date_of_birth = `${year}-${month}-${day}`;
+      } else if (typeof user.date_of_birth === 'string' && user.date_of_birth.includes('T')) {
+        // If it's an ISO string with time, extract just the date part
+        user.date_of_birth = user.date_of_birth.split('T')[0];
+      }
+      console.log('Formatted date_of_birth:', user.date_of_birth);
+    }
+    
+    return user;
   } finally {
     client.release();
   }
@@ -389,6 +429,7 @@ export async function initializeDatabase(): Promise<void> {
         instagram_url TEXT,
         facebook_url TEXT,
         twitter_url TEXT,
+        avatar_url TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )

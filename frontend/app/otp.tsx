@@ -58,10 +58,12 @@ export default function OTPScreen() {
     if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 4) {
       // Verify OTP with authentication context
       const otpString = newOtp.join('');
+      console.log('Auto-verifying OTP:', { phone, otp: otpString });
       const result = await verifyOTP(phone || '', otpString);
       if (result.success) {
         routeAfterVerification(result);
       } else {
+        console.error('OTP verification failed');
         // Show error or reset OTP
         setOtp(['', '', '', '']);
       }
@@ -108,10 +110,12 @@ export default function OTPScreen() {
           style={styles.loginButton}
           onPress={async () => {
             const otpString = otp.join('');
+            console.log('Manual OTP verification:', { phone, otp: otpString });
             const result = await verifyOTP(phone || '', otpString);
             if (result.success) {
               routeAfterVerification(result);
             } else {
+              console.error('OTP verification failed');
               // Show error or reset OTP
               setOtp(['', '', '', '']);
             }

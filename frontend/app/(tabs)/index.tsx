@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRef, useEffect, useState, useMemo } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_HORIZONTAL_PADDING = 22;
@@ -15,6 +16,7 @@ const PRODUCT_CARD_WIDTH = (SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2 - PRODUCT
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { profile } = useAuth();
+  const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const filters = useMemo(
@@ -115,10 +117,13 @@ export default function HomeScreen() {
     },
   ];
 
+  // Calculate bottom padding: tab bar height (70) + safe area bottom + extra spacing
+  const bottomPadding = 70 + insets.bottom + 20;
+
   return (
     <LinearGradient colors={['#6F0F3B', '#120614']} style={styles.screen}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerRow}>
@@ -130,7 +135,7 @@ export default function HomeScreen() {
             <TouchableOpacity style={[styles.actionIcon, styles.alertIcon]}>
               <BellRing size={22} color="#8B2E5A" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionIcon}>
+            <TouchableOpacity style={styles.actionIcon} activeOpacity={0.85} onPress={() => router.push('/profile')}>
               <User2 size={22} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
@@ -262,7 +267,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 52,
-    paddingBottom: 36,
+    paddingBottom: 120, // Will be overridden dynamically
     gap: SECTION_GAP,
   },
   headerRow: {
@@ -279,8 +284,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   userCategory: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.85)',
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.92)',
+    fontWeight: '500',
   },
   headerActions: {
     flexDirection: 'row',
@@ -291,22 +297,22 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: 23,
     backgroundColor: 'rgba(255,255,255,0.18)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowColor: '#000000',
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
   alertIcon: {
-    backgroundColor: '#FDD835',
-    borderColor: '#FDD835',
-    shadowColor: '#FDD835',
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
+    backgroundColor: '#FFE27B',
+    borderColor: '#FFE27B',
+    shadowColor: '#F2B950',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
   },
   heroCard: {
@@ -357,7 +363,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 8,
-    marginTop: -12,
+    marginTop: -2,
+    marginBottom: -6,
     paddingHorizontal: CARD_HORIZONTAL_PADDING,
   },
   heroDot: {
@@ -415,7 +422,8 @@ const styles = StyleSheet.create({
   productHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: 10,
   },
   productTitle: {
     fontSize: 22,
@@ -436,6 +444,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(253, 216, 181, 0.18)',
     borderWidth: 1,
     borderColor: 'rgba(253, 216, 181, 0.5)',
+    alignSelf: 'flex-start',
   },
   productBadgeLabel: {
     color: '#FDC68A',
@@ -493,7 +502,7 @@ const styles = StyleSheet.create({
   },
   priceContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: 10,
   },
   price: {
@@ -531,7 +540,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingHorizontal: 20,
     gap: 16,
-    paddingBottom: 40,
+    paddingBottom: 20,
+    marginBottom: 20,
   },
   contentTypeCard: {
     width: '47%',
@@ -563,20 +573,20 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
-    backgroundColor: 'rgba(28, 8, 26, 0.55)',
+    borderColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   filterChipActive: {
-    backgroundColor: '#FDD835',
-    borderColor: 'rgba(253,216,53,0.8)',
+    backgroundColor: '#FFE27B',
+    borderColor: 'rgba(253,216,53,0.65)',
     shadowColor: '#FDD835',
-    shadowOpacity: 0.45,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
   filterChipLabel: {
-    color: 'rgba(255,255,255,0.78)',
+    color: 'rgba(255,255,255,0.74)',
     fontSize: 13,
     fontWeight: '600',
     letterSpacing: 0.3,

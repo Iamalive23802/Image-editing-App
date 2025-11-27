@@ -159,6 +159,8 @@
     "completedMessage": "आपकी जानकारी सफलतापूर्वक सुरक्षित कर ली गई है।",
     "saveErrorTitle": "प्रोफ़ाइल सहेजी नहीं जा सकी",
     "saveErrorMessage": "कृपया पुनः प्रयास करें।",
+    "incompleteTitle": "अधूरा प्रोफ़ाइल",
+    "incompleteMessage": "कृपया सभी आवश्यक फ़ील्ड भरें: {missingFields}",
     "translationSuggestionLabel": "अनुवाद उपयोग करें",
     "translationApplied": "अनुवाद लागू हुआ",
     "prefixOptions": {
