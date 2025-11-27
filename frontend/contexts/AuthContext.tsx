@@ -231,7 +231,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const profileSource = userData.profile ?? userData.user;
       const mappedProfile = mapApiProfileToState(profileSource);
       setProfile(mappedProfile);
-      const complete = isProfileComplete(mappedProfile);
+      const complete =
+        userData.profileComplete ??
+        userData.profile_complete ??
+        isProfileComplete(mappedProfile);
       setProfileComplete(complete);
       return { user: latestUser, profile: mappedProfile, profileComplete: complete };
     } catch (error) {
@@ -308,7 +311,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const hasLanguage = Boolean(storedLanguage || loaded?.user?.language);
         const hasRole = Boolean(activeProfile?.role);
         const profileIsComplete =
-          loaded?.profileComplete ?? isProfileComplete(activeProfile ?? null);
+          loaded?.profileComplete ??
+          data.profileComplete ??
+          data.profile_complete ??
+          isProfileComplete(activeProfile ?? null);
         return { success: true, hasLanguage, hasRole, profileComplete: profileIsComplete };
       }
       console.warn('OTP verification failed:', data);
