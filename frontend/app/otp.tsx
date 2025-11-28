@@ -32,7 +32,7 @@ export default function OTPScreen() {
     }
 
     if (result.profileComplete) {
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/index');
       return;
     }
   };
