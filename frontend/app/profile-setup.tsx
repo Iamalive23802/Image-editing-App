@@ -526,25 +526,22 @@ export default function ProfileSetupScreen() {
           role: savedProfile.role,
         });
         
-        // If coming from profile page, always navigate to home after saving
-        // Otherwise, only navigate if profile is complete (initial setup flow)
-        const isEditingFromProfile = params.fromProfile === 'true';
-        
-        if (isComplete || isEditingFromProfile) {
-          // Small delay to ensure state updates propagate
-          await new Promise(resolve => setTimeout(resolve, 150));
-          
-          // Always navigate to home page after saving (whether from profile edit or initial setup)
-          router.replace('/(tabs)');
-        } else {
+        // Always navigate to home page after saving (whether from profile edit or initial setup)
+        // Warn if required fields are still missing so we can improve data quality.
+        if (!isComplete) {
           console.warn('Profile is not complete, missing fields:', missingFields);
           const missingFieldsText = missingFields.join(', ');
           Alert.alert(
             t('profileSetup.incompleteTitle') || 'Incomplete Profile',
-            t('profileSetup.incompleteMessage', { missingFields: missingFieldsText }) || 
+            t('profileSetup.incompleteMessage', { missingFields: missingFieldsText }) ||
             `Please fill in all required fields: ${missingFieldsText}`
           );
         }
+
+        // Small delay to ensure state updates propagate before navigating
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        router.replace('/(tabs)/index');
       } else {
         throw new Error('Profile save returned null');
       }
