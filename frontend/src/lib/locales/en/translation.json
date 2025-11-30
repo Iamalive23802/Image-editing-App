@@ -102,6 +102,7 @@
       "statePlaceholder": "Select your state",
       "districtPlaceholder": "Select your dist",
       "talukaPlaceholder": "Select your tahsil",
+      "politicalPartyPlaceholder": "Select political party",
       "dobPlaceholder": "Select DOB",
       "dayPlaceholder": "Day",
       "monthPlaceholder": "Month",
@@ -184,8 +185,25 @@
       "dobDayTitle": "Select day",
       "dobMonthTitle": "Select month",
       "dobYearTitle": "Select year",
+      "politicalPartyTitle": "Choose political party",
       "roleTitle": "Choose role",
       "close": "Close"
+    },
+    "politicalParties": {
+      "bjp": "Bharatiya Janata Party (BJP)",
+      "congress": "Indian National Congress",
+      "aap": "Aam Aadmi Party (AAP)",
+      "shivsena": "Shiv Sena",
+      "ncplit": "Nationalist Congress Party (NCP)",
+      "samajwadi": "Samajwadi Party",
+      "bsp": "Bahujan Samaj Party (BSP)",
+      "dmk": "Dravida Munnetra Kazhagam (DMK)",
+      "aitmc": "All India Trinamool Congress",
+      "trs": "Telangana Rashtra Samithi (TRS)",
+      "jds": "Janata Dal (Secular)",
+      "rjd": "Rashtriya Janata Dal (RJD)",
+      "independent": "Independent",
+      "other": "Other"
     },
     "states": {
       "maharashtra": {

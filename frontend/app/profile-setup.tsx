@@ -22,7 +22,9 @@ import type { UpdateProfileInput } from '@/contexts/AuthContext';
 import { transliterateText } from '@/lib/transliteration';
 
 type RoleOption = 'publicFigure' | 'politicalFigure' | 'individual' | 'business' | 'brand';
-type ModalType = 'state' | 'district' | 'taluka' | 'dobDay' | 'dobMonth' | 'dobYear' | null;
+type ModalType = 'state' | 'district' | 'taluka' | 'dobDay' | 'dobMonth' | 'dobYear' | 'politicalParty' | null;
+
+type PoliticalPartyOption = 'bjp' | 'congress' | 'aap' | 'shivsena' | 'ncplit' | 'samajwadi' | 'bsp' | 'dmk' | 'aitmc' | 'trs' | 'jds' | 'rjd' | 'independent' | 'other';
 
 type LocationTaluka = 'haveli' | 'mulshi' | 'thane' | 'kalyan' | 'bengaluruUrban' | 'yelahanka';
 type LocationDistrict = 'pune' | 'thaneDistrict' | 'bengaluruUrbanDistrict';
@@ -45,10 +47,28 @@ interface ProfileFormState {
   district: LocationDistrict | '';
   taluka: LocationTaluka | '';
   role: RoleOption | '';
+  politicalParty: PoliticalPartyOption | '';
   dob: string;
 }
 
 const ROLE_OPTIONS: RoleOption[] = ['publicFigure', 'politicalFigure', 'individual', 'business', 'brand'];
+
+const POLITICAL_PARTY_OPTIONS: PoliticalPartyOption[] = [
+  'bjp',
+  'congress',
+  'aap',
+  'shivsena',
+  'ncplit',
+  'samajwadi',
+  'bsp',
+  'dmk',
+  'aitmc',
+  'trs',
+  'jds',
+  'rjd',
+  'independent',
+  'other',
+];
 
 const LOCATION_DATA: LocationOption[] = [
   {
@@ -106,13 +126,13 @@ const composeDob = (parts: { day: string; month: string; year: string }) => {
   return `${year}-${month}-${day}`;
 };
 
-const extractDobParts = (value: string | null | undefined) => {
+const extractDobParts = (value: string | Date | null | undefined) => {
   if (!value) {
     return { day: '', month: '', year: '' };
   }
 
   // Convert to string if it's a Date object
-  let dateString = value;
+  let dateString: string;
   if (value instanceof Date) {
     // If it's a Date object, format it as YYYY-MM-DD in local timezone
     const year = value.getFullYear();
@@ -120,6 +140,7 @@ const extractDobParts = (value: string | null | undefined) => {
     const day = String(value.getDate()).padStart(2, '0');
     return { day, month, year: String(year) };
   }
+  dateString = value;
 
   // Handle ISO date strings (with or without time)
   // Examples: "2015-08-06", "2015-08-06T00:00:00.000Z", "2015-08-06T18:30:00.000Z"
@@ -151,12 +172,12 @@ const extractDobParts = (value: string | null | undefined) => {
   };
 };
 
-const normalizeDobString = (value: string | null | undefined) => {
+const normalizeDobString = (value: string | Date | null | undefined) => {
   const parts = extractDobParts(value);
   return composeDob(parts);
 };
 
-export default function ProfileSetupScreen() {
+export default function ProfileSetupPage() {
   const { t } = useTranslation();
   const { user, profile: savedProfile, updateProfile: saveProfile, language } = useAuth();
   const params = useLocalSearchParams<{ role?: string; fromProfile?: string }>();
@@ -171,6 +192,7 @@ export default function ProfileSetupScreen() {
     district: '' as LocationDistrict | '',
     taluka: '' as LocationTaluka | '',
     role: '' as RoleOption | '',
+    politicalParty: '' as PoliticalPartyOption | '',
     avatar: null,
     dob: '',
   });
@@ -261,6 +283,9 @@ export default function ProfileSetupScreen() {
       district: (savedProfile.district ?? '') as LocationDistrict | '',
       taluka: (savedProfile.taluka ?? '') as LocationTaluka | '',
       role: isRoleOption(savedProfile.role) ? (savedProfile.role as RoleOption) : prev.role,
+      politicalParty: (isRoleOption(savedProfile.role) && savedProfile.role === 'politicalFigure') 
+        ? ((savedProfile.politicalParty ?? '') as PoliticalPartyOption | '')
+        : ('' as PoliticalPartyOption | ''),
       dob: normalizedDob,
       avatar: savedProfile.avatarUrl ?? null,
     }));
@@ -273,7 +298,15 @@ export default function ProfileSetupScreen() {
 
   useEffect(() => {
     if (params.role && isRoleOption(params.role)) {
-      setProfile((prev) => ({ ...prev, role: params.role as RoleOption }));
+      setProfile((prev) => {
+        const newRole = params.role as RoleOption;
+        // Clear political party if role changes away from politicalFigure
+        return {
+          ...prev,
+          role: newRole,
+          politicalParty: newRole === 'politicalFigure' ? prev.politicalParty : ('' as PoliticalPartyOption | ''),
+        };
+      });
     }
   }, [params.role]);
 
@@ -328,6 +361,7 @@ export default function ProfileSetupScreen() {
       state: t('profileSetup.fields.statePlaceholder'),
       district: t('profileSetup.fields.districtPlaceholder'),
       taluka: t('profileSetup.fields.talukaPlaceholder'),
+      politicalParty: t('profileSetup.fields.politicalPartyPlaceholder'),
       dob: t('profileSetup.fields.dobPlaceholder'),
       day: t('profileSetup.fields.dayPlaceholder'),
       month: t('profileSetup.fields.monthPlaceholder'),
@@ -376,6 +410,15 @@ export default function ProfileSetupScreen() {
     }
     return years;
   }, []);
+
+  const politicalPartyOptions = useMemo(
+    () =>
+      POLITICAL_PARTY_OPTIONS.map((party) => ({
+        id: party,
+        label: t(`profileSetup.politicalParties.${party}`),
+      })),
+    [t],
+  );
 
   const applyDobPart = (part: 'day' | 'month' | 'year', value: string) => {
     setDobParts((prev) => {
@@ -487,6 +530,7 @@ export default function ProfileSetupScreen() {
         district: profile.district ? profile.district : null,
         taluka: profile.taluka ? profile.taluka : null,
         role: profile.role ? profile.role : null,
+        politicalParty: profile.politicalParty ? profile.politicalParty : null,
         avatarUrl: profile.avatar ?? null,
       };
 
@@ -541,7 +585,7 @@ export default function ProfileSetupScreen() {
         // Small delay to ensure state updates propagate before navigating
         await new Promise(resolve => setTimeout(resolve, 150));
 
-        router.replace('/(tabs)/index');
+        router.replace('/(tabs)');
       } else {
         throw new Error('Profile save returned null');
       }
@@ -597,6 +641,9 @@ export default function ProfileSetupScreen() {
                   }
                   if (modalType === 'dobYear') {
                     applyDobPart('year', option.id);
+                  }
+                  if (modalType === 'politicalParty') {
+                    updateProfileField('politicalParty', option.id as PoliticalPartyOption);
                   }
                   closeModal();
                 }}
@@ -776,6 +823,26 @@ export default function ProfileSetupScreen() {
             <ChevronDown size={20} color="#5A4B4B" />
           </TouchableOpacity>
 
+          {profile.role === 'politicalFigure' && (
+            <TouchableOpacity
+              style={styles.dropdownWrapper}
+              onPress={() => setActiveModal('politicalParty')}
+              activeOpacity={0.85}
+            >
+              <Text
+                style={[
+                  styles.dropdownText,
+                  !profile.politicalParty && styles.dropdownPlaceholder,
+                ]}
+              >
+                {profile.politicalParty
+                  ? t(`profileSetup.politicalParties.${profile.politicalParty}`)
+                  : placeholders.politicalParty}
+              </Text>
+              <ChevronDown size={20} color="#5A4B4B" />
+            </TouchableOpacity>
+          )}
+
           <Text style={styles.label}>{placeholders.dob}</Text>
           <View style={styles.dobRow}>
             <TouchableOpacity
@@ -869,6 +936,11 @@ export default function ProfileSetupScreen() {
       {renderSelectionModal({
         modalType: 'dobYear',
         options: yearOptions,
+      })}
+
+      {renderSelectionModal({
+        modalType: 'politicalParty',
+        options: politicalPartyOptions,
       })}
     </LinearGradient>
   );
@@ -1024,6 +1096,13 @@ const styles = StyleSheet.create({
   },
   dropdownPlaceholder: {
     color: '#8C8F92',
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginTop: 12,
+    marginBottom: 8,
   },
   dobRow: {
     flexDirection: 'row',

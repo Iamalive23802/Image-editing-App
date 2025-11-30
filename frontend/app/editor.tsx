@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 const { width, height } = Dimensions.get('window');
 
-export default function EditorScreen() {
+export default function TemplateEditorPage() {
   const { templateId } = useLocalSearchParams();
   const [selectedElement, setSelectedElement] = useState(null);
   const [textElements, setTextElements] = useState([

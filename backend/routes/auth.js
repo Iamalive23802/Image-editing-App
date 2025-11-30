@@ -17,6 +17,7 @@ const TEST_PHONE_OTPS = {
   '8080808080': '2468',
   '9765432109': '1357',
   '8596321470': '7890',
+  '9223589450': '1234',
 };
 
 const normalizePhoneNumber = (phoneNumber = '') => {

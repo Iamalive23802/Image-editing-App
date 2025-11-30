@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
-export default function LikedScreen() {
+export default function LikedContentPage() {
   const { t } = useTranslation();
   
   return (

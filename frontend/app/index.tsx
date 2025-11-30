@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function LoginScreen() {
+export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState('9167767684');
 
   const handleContinue = () => {

@@ -3,7 +3,7 @@ import { Tabs, useRouter } from 'expo-router';
 import { Home, Heart, Plus, Download, Send } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function TabLayout() {
+export default function TabLayoutPage() {
   const router = useRouter();
   const { language, profile, profileComplete } = useAuth();
 
@@ -16,7 +16,7 @@ export default function TabLayout() {
       }
 
       if (!profile?.role) {
-        router.replace('/who-you-are');
+        router.replace('/role-selection');
         return;
       }
 

@@ -102,6 +102,7 @@
       "statePlaceholder": "अपना राज्य चुनें",
       "districtPlaceholder": "अपना जिला चुनें",
       "talukaPlaceholder": "अपनी तहसील चुनें",
+      "politicalPartyPlaceholder": "राजनीतिक पार्टी चुनें",
       "dobPlaceholder": "जन्मतिथि चुनें",
       "dayPlaceholder": "दिन",
       "monthPlaceholder": "माह",
@@ -184,8 +185,25 @@
       "dobDayTitle": "दिन चुनें",
       "dobMonthTitle": "माह चुनें",
       "dobYearTitle": "वर्ष चुनें",
+      "politicalPartyTitle": "राजनीतिक पार्टी चुनें",
       "roleTitle": "भूमिका चुनें",
       "close": "बंद करें"
+    },
+    "politicalParties": {
+      "bjp": "भारतीय जनता पार्टी (BJP)",
+      "congress": "भारतीय राष्ट्रीय कांग्रेस",
+      "aap": "आम आदमी पार्टी (AAP)",
+      "shivsena": "शिव सेना",
+      "ncplit": "राष्ट्रवादी कांग्रेस पार्टी (NCP)",
+      "samajwadi": "समाजवादी पार्टी",
+      "bsp": "बहुजन समाज पार्टी (BSP)",
+      "dmk": "द्रविड़ मुन्नेत्र कड़गम (DMK)",
+      "aitmc": "ऑल इंडिया तृणमूल कांग्रेस",
+      "trs": "तेलंगाना राष्ट्र समिति (TRS)",
+      "jds": "जनता दल (धर्मनिरपेक्ष)",
+      "rjd": "राष्ट्रीय जनता दल (RJD)",
+      "independent": "स्वतंत्र",
+      "other": "अन्य"
     },
     "states": {
       "maharashtra": {

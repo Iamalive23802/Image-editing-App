@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
-export default function ShareScreen() {
+export default function ShareContentPage() {
   const { t } = useTranslation();
   
   return (

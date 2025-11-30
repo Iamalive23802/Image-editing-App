@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "init-db": "node scripts/init-db.js"
+    "init-db": "node scripts/init-db.js",
+    "migrate:add-political-party": "node scripts/add-political-party-column.js"
   },
   "dependencies": {
     "axios": "^1.12.2",

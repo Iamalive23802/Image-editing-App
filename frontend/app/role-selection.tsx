@@ -15,7 +15,7 @@ const ROLE_ORDER: RoleOption[] = [
   'publicFigure',
 ];
 
-export default function WhoYouAreScreen() {
+export default function RoleSelectionPage() {
   const { t } = useTranslation();
   const { updateProfile } = useAuth();
   const [selectedRole, setSelectedRole] = useState<RoleOption | null>(null);

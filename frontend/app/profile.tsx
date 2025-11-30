@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const getInitials = (value: string) => {
   const parts = value.trim().split(/\s+/).filter(Boolean);
@@ -24,9 +25,10 @@ const formatDate = (date?: string | null) => {
   return parsed.toLocaleDateString();
 };
 
-export default function ProfileScreen() {
+export default function ProfileViewPage() {
   const { profile, user } = useAuth();
   const { t } = useTranslation();
+  const { insets, scaleSpacing } = useResponsive();
   const fullName =
     formatName(profile?.firstName, profile?.middleName, profile?.lastName) || user?.phone_number || 'User';
   const avatarInitials = getInitials(fullName);
@@ -37,8 +39,19 @@ export default function ProfileScreen() {
   console.log('Profile data:', profile);
   console.log('Has avatarUrl:', !!profile?.avatarUrl);
 
+  // Get political party display value with translation
+  const getPoliticalPartyDisplay = (partyKey?: string | null) => {
+    if (!partyKey) return '—';
+    const translated = t(`profileSetup.politicalParties.${partyKey}`);
+    // i18n returns the key if translation not found, so check for that
+    return translated !== `profileSetup.politicalParties.${partyKey}` ? translated : partyKey;
+  };
+
   const details = [
     { label: 'Role', value: roleLabel },
+    ...(profile?.role === 'politicalFigure' && profile?.politicalParty
+      ? [{ label: 'Political Party', value: getPoliticalPartyDisplay(profile.politicalParty) }]
+      : []),
     { label: 'Phone Number', value: user?.phone_number || '—' },
     { label: 'Email', value: profile?.email || '—' },
     { label: 'Date of Birth', value: formatDate(profile?.dateOfBirth) },
@@ -52,7 +65,15 @@ export default function ProfileScreen() {
 
   return (
     <LinearGradient colors={['#E75C6F', '#C73F5B']} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: Math.max(insets.top, scaleSpacing(60)),
+            paddingBottom: Math.max(insets.bottom, scaleSpacing(40)),
+          },
+        ]}
+      >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.85}>
             <Text style={styles.backLabel}>←</Text>
@@ -113,9 +134,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingTop: 60,
     paddingHorizontal: 24,
-    paddingBottom: 40,
     gap: 24,
   },
   header: {

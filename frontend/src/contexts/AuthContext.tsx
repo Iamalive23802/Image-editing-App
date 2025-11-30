@@ -48,6 +48,7 @@ export interface UserProfile {
   district: string | null;
   taluka: string | null;
   role: string | null;
+  politicalParty: string | null;
   instagramUrl: string | null;
   facebookUrl: string | null;
   twitterUrl: string | null;
@@ -66,6 +67,7 @@ export interface UpdateProfileInput {
   district?: string | null;
   taluka?: string | null;
   role?: string | null;
+  politicalParty?: string | null;
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   twitterUrl?: string | null;
@@ -164,6 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       district: data.district ?? null,
       taluka: data.taluka ?? null,
       role: data.role ?? null,
+      politicalParty: data.political_party ?? null,
       instagramUrl: data.instagram_url ?? null,
       facebookUrl: data.facebook_url ?? null,
       twitterUrl: data.twitter_url ?? null,
@@ -183,6 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     district: data.district ?? null,
     taluka: data.taluka ?? null,
     role: data.role ?? null,
+    political_party: data.politicalParty ?? null,
     instagram_url: data.instagramUrl ?? null,
     facebook_url: data.facebookUrl ?? null,
     twitter_url: data.twitterUrl ?? null,

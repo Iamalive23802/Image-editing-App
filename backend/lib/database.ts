@@ -58,6 +58,7 @@ export interface User {
   district: string | null;
   taluka: string | null;
   role: string | null;
+  political_party: string | null;
   instagram_url: string | null;
   facebook_url: string | null;
   twitter_url: string | null;
@@ -92,6 +93,7 @@ export async function createUser(phoneNumber: string): Promise<User> {
       district: null,
       taluka: null,
       role: null,
+      political_party: null,
       instagram_url: null,
       facebook_url: null,
       twitter_url: null,
@@ -235,6 +237,7 @@ export interface UpdateUserDetailsInput {
   district?: string | null;
   taluka?: string | null;
   role?: string | null;
+  political_party?: string | null;
   instagram_url?: string | null;
   facebook_url?: string | null;
   twitter_url?: string | null;
@@ -257,6 +260,7 @@ export async function updateUserDetails(
     district: details.district,
     taluka: details.taluka,
     role: details.role,
+    political_party: details.political_party,
     instagram_url: details.instagram_url,
     facebook_url: details.facebook_url,
     twitter_url: details.twitter_url,
@@ -287,6 +291,7 @@ export async function updateUserDetails(
           district: null,
           taluka: null,
           role: null,
+          political_party: null,
           instagram_url: null,
           facebook_url: null,
           twitter_url: null,
@@ -426,6 +431,7 @@ export async function initializeDatabase(): Promise<void> {
         district VARCHAR(120),
         taluka VARCHAR(120),
         role VARCHAR(60),
+        political_party VARCHAR(120),
         instagram_url TEXT,
         facebook_url TEXT,
         twitter_url TEXT,

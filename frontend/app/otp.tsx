@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function OTPScreen() {
+export default function OTPVerificationPage() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
   const [otp, setOtp] = useState(['2', '3', '0', '8']); // Pre-fill with hardcoded OTP
   const [timer, setTimer] = useState(27);
@@ -22,7 +22,7 @@ export default function OTPScreen() {
     }
 
     if (!result.hasRole) {
-      router.replace('/who-you-are');
+      router.replace('/role-selection');
       return;
     }
 
@@ -32,7 +32,7 @@ export default function OTPScreen() {
     }
 
     if (result.profileComplete) {
-      router.replace('/(tabs)/index');
+      router.replace('/(tabs)');
       return;
     }
   };

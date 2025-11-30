@@ -2,10 +2,10 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 
-export default function LanguageScreen() {
+export default function LanguageSelectionPage() {
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const { setLanguage } = useAuth();
   const { t } = useTranslation();
@@ -20,7 +20,7 @@ export default function LanguageScreen() {
     setSelectedLanguage(languageId);
     await setLanguage(languageId);
     setTimeout(() => {
-      router.replace('/who-you-are');
+      router.replace('/role-selection');
     }, 200);
   };
 

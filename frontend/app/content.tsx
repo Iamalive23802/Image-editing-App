@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
-export default function ContentScreen() {
+export default function ContentGalleryPage() {
   const { type } = useLocalSearchParams();
   const { t } = useTranslation();
   

@@ -1,24 +1,27 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BellRing, User2 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRef, useEffect, useState, useMemo } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useResponsive } from '@/hooks/useResponsive';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// Constants (will be calculated dynamically)
 const CARD_HORIZONTAL_PADDING = 22;
 const SECTION_GAP = 32;
 const PRODUCT_GAP = 16;
-const PRODUCT_CARD_WIDTH = (SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2 - PRODUCT_GAP) / 2;
 
-export default function HomeScreen() {
+export default function HomePage() {
   const { t } = useTranslation();
   const { profile } = useAuth();
-  const insets = useSafeAreaInsets();
+  const { width: SCREEN_WIDTH, insets, scaleSpacing } = useResponsive();
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // Calculate responsive values with scaled padding
+  const responsivePadding = scaleSpacing(CARD_HORIZONTAL_PADDING);
+  const PRODUCT_CARD_WIDTH = (SCREEN_WIDTH - responsivePadding * 2 - PRODUCT_GAP) / 2;
   const filters = useMemo(
     () => [
       { id: 'todaysBest', label: t('home.todaysBest') },
@@ -117,13 +120,21 @@ export default function HomeScreen() {
     },
   ];
 
-  // Calculate bottom padding: tab bar height (70) + safe area bottom + extra spacing
-  const bottomPadding = 70 + insets.bottom + 20;
+  // Calculate responsive bottom padding: tab bar height + safe area bottom + extra spacing
+  const TAB_BAR_HEIGHT = 70;
+  const bottomPadding = TAB_BAR_HEIGHT + insets.bottom + scaleSpacing(20);
 
   return (
     <LinearGradient colors={['#6F0F3B', '#120614']} style={styles.screen}>
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, scaleSpacing(52)),
+            paddingBottom: bottomPadding,
+            paddingHorizontal: scaleSpacing(CARD_HORIZONTAL_PADDING),
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerRow}>
@@ -153,7 +164,16 @@ export default function HomeScreen() {
           scrollEventThrottle={16}
         >
           {banners.map((banner) => (
-            <View key={banner.id} style={styles.heroCardWrapper}>
+            <View
+              key={banner.id}
+              style={[
+                styles.heroCardWrapper,
+                {
+                  width: SCREEN_WIDTH,
+                  paddingHorizontal: scaleSpacing(CARD_HORIZONTAL_PADDING),
+                },
+              ]}
+            >
               <LinearGradient colors={['#F8B646', '#F06F58']} style={styles.heroCard}>
                 <View style={styles.heroBackground}>
                   <View style={styles.heroOverlay}>
@@ -169,7 +189,7 @@ export default function HomeScreen() {
             </View>
           ))}
         </ScrollView>
-        <View style={styles.heroDots}>
+        <View style={[styles.heroDots, { paddingHorizontal: scaleSpacing(CARD_HORIZONTAL_PADDING) }]}>
           {banners.map((banner, index) => (
             <View
               key={banner.id}
@@ -178,7 +198,7 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <View style={styles.filtersRow}>
+        <View style={[styles.filtersRow, { paddingHorizontal: scaleSpacing(CARD_HORIZONTAL_PADDING) }]}>
           {filters.map((filter) => {
             const isActive = filter.id === activeFilter;
             return (
@@ -199,7 +219,10 @@ export default function HomeScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.productsContainer}
+          contentContainerStyle={[
+            styles.productsContainer,
+            { paddingHorizontal: scaleSpacing(CARD_HORIZONTAL_PADDING) },
+          ]}
         >
           {products.map((product, index) => (
             <LinearGradient
@@ -207,6 +230,7 @@ export default function HomeScreen() {
               colors={['#2E0316', '#16000A']}
               style={[
                 styles.productCard,
+                { width: PRODUCT_CARD_WIDTH },
                 index === products.length - 1 && styles.productCardLast,
               ]}
             >
@@ -219,7 +243,7 @@ export default function HomeScreen() {
               <Text style={styles.productTitle}>{product.title}</Text>
 
               <View style={styles.coinContainer}>
-                <LinearGradient colors={['#FEEBB0', '#F7C254']} style={styles.coin} angle={135} useAngle>
+                <LinearGradient colors={['#FEEBB0', '#F7C254']} style={styles.coin}>
                   <View style={styles.coinInner}>
                     <Text style={styles.coinLabel}>24K</Text>
                     <Text style={styles.coinSubLabel}>999.9</Text>
@@ -230,10 +254,14 @@ export default function HomeScreen() {
               <View style={styles.productFooter}>
                 <View style={styles.productMeta}>
                   <Text style={styles.productQuantity}>{product.weight}</Text>
-                  <View style={styles.priceContainer}>
-                    <Text style={styles.price}>{product.price}</Text>
-                    <Text style={styles.originalPrice}>{product.originalPrice}</Text>
-                  </View>
+                <View style={styles.priceContainer}>
+                  <Text style={styles.price} numberOfLines={1}>
+                    {product.price}
+                  </Text>
+                  <Text style={styles.originalPrice} numberOfLines={1} ellipsizeMode="tail">
+                    {product.originalPrice}
+                  </Text>
+                </View>
                 </View>
                 <TouchableOpacity style={styles.addButton}>
                   <Text style={styles.addButtonText}>{t('home.add')}</Text>
@@ -243,8 +271,10 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
 
-        <Text style={styles.sectionTitle}>{t('home.contentType')}</Text>
-        <View style={styles.contentTypesGrid}>
+        <Text style={[styles.sectionTitle, { paddingHorizontal: scaleSpacing(20) }]}>
+          {t('home.contentType')}
+        </Text>
+        <View style={[styles.contentTypesGrid, { paddingHorizontal: scaleSpacing(20) }]}>
           {contentTypes.map((type) => (
             <TouchableOpacity 
               key={type.id} 
@@ -266,8 +296,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 52,
-    paddingBottom: 120, // Will be overridden dynamically
     gap: SECTION_GAP,
   },
   headerRow: {
@@ -356,7 +384,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   heroCardWrapper: {
-    width: SCREEN_WIDTH,
     paddingHorizontal: CARD_HORIZONTAL_PADDING,
   },
   heroDots: {
@@ -365,7 +392,6 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: -2,
     marginBottom: -6,
-    paddingHorizontal: CARD_HORIZONTAL_PADDING,
   },
   heroDot: {
     width: 8,
@@ -395,19 +421,16 @@ const styles = StyleSheet.create({
   filtersRow: {
     flexDirection: 'row',
     gap: 14,
-    paddingHorizontal: CARD_HORIZONTAL_PADDING,
   },
   productsContainer: {
-    paddingHorizontal: CARD_HORIZONTAL_PADDING,
     paddingVertical: 6,
     flexDirection: 'row',
     alignItems: 'stretch',
   },
   productCard: {
-    width: PRODUCT_CARD_WIDTH,
     borderRadius: 22,
     paddingVertical: 18,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     marginRight: PRODUCT_GAP,
     backgroundColor: 'rgba(46,3,22,0.85)',
     shadowColor: '#000',
@@ -415,6 +438,8 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 8 },
     elevation: 4,
+    minWidth: 0,
+    overflow: 'hidden', // Prevent content overflow
   },
   productCardLast: {
     marginRight: 0,
@@ -494,6 +519,8 @@ const styles = StyleSheet.create({
   },
   productMeta: {
     gap: 6,
+    flex: 1,
+    minWidth: 0, // Allow text to shrink properly
   },
   productQuantity: {
     fontSize: 13,
@@ -502,18 +529,21 @@ const styles = StyleSheet.create({
   },
   priceContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 10,
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
   },
   price: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     color: '#FDE8B5',
+    flexShrink: 0,
   },
   originalPrice: {
-    fontSize: 12,
+    fontSize: 11,
     color: 'rgba(255,255,255,0.55)',
     textDecorationLine: 'line-through',
+    flexShrink: 1,
   },
   addButton: {
     backgroundColor: '#FDE8B5',
@@ -533,12 +563,10 @@ const styles = StyleSheet.create({
     color: '#FFF',
     marginTop: 30,
     marginBottom: 18,
-    paddingHorizontal: 20,
   },
   contentTypesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 20,
     gap: 16,
     paddingBottom: 20,
     marginBottom: 20,
