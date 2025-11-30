@@ -21,7 +21,11 @@ export default function HomePage() {
   
   // Calculate responsive values with scaled padding
   const responsivePadding = scaleSpacing(CARD_HORIZONTAL_PADDING);
+  const carouselWidth = SCREEN_WIDTH - responsivePadding * 2;
   const PRODUCT_CARD_WIDTH = (SCREEN_WIDTH - responsivePadding * 2 - PRODUCT_GAP) / 2;
+  const contentGridPadding = scaleSpacing(20);
+  const contentTypeGap = scaleSpacing(14);
+  const contentTypeCardWidth = (SCREEN_WIDTH - contentGridPadding * 2 - contentTypeGap) / 2;
   const filters = useMemo(
     () => [
       { id: 'todaysBest', label: t('home.todaysBest') },
@@ -67,7 +71,7 @@ export default function HomePage() {
       setCurrentIndex((prevIndex) => {
         const nextIndex = (prevIndex + 1) % banners.length;
         scrollViewRef.current?.scrollTo({
-          x: nextIndex * SCREEN_WIDTH,
+          x: nextIndex * carouselWidth,
           animated: true,
         });
         return nextIndex;
@@ -75,7 +79,7 @@ export default function HomePage() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [banners.length]);
+  }, [banners.length, carouselWidth]);
 
   useEffect(() => {
     if (!activeFilter && filters.length > 0) {
@@ -157,8 +161,9 @@ export default function HomePage() {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
+          style={[styles.heroCarousel, { width: carouselWidth }]}
           onMomentumScrollEnd={(event) => {
-            const index = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+            const index = Math.round(event.nativeEvent.contentOffset.x / carouselWidth);
             setCurrentIndex(index);
           }}
           scrollEventThrottle={16}
@@ -169,8 +174,8 @@ export default function HomePage() {
               style={[
                 styles.heroCardWrapper,
                 {
-                  width: SCREEN_WIDTH,
-                  paddingHorizontal: scaleSpacing(CARD_HORIZONTAL_PADDING),
+                  width: carouselWidth,
+                  paddingHorizontal: scaleSpacing(16),
                 },
               ]}
             >
@@ -271,14 +276,14 @@ export default function HomePage() {
           ))}
         </ScrollView>
 
-        <Text style={[styles.sectionTitle, { paddingHorizontal: scaleSpacing(20) }]}>
+        <Text style={[styles.sectionTitle, { paddingHorizontal: contentGridPadding }]}>
           {t('home.contentType')}
         </Text>
-        <View style={[styles.contentTypesGrid, { paddingHorizontal: scaleSpacing(20) }]}>
+        <View style={[styles.contentTypesGrid, { paddingHorizontal: contentGridPadding, gap: contentTypeGap }]}>
           {contentTypes.map((type) => (
-            <TouchableOpacity 
-              key={type.id} 
-              style={styles.contentTypeCard}
+            <TouchableOpacity
+              key={type.id}
+              style={[styles.contentTypeCard, { width: contentTypeCardWidth }]}
               onPress={() => router.push(`/content?type=${type.id}`)}
             >
               <Text style={styles.contentTypeIcon}>{type.icon}</Text>
@@ -355,6 +360,9 @@ const styles = StyleSheet.create({
   heroBackground: {
     width: '100%',
     height: 210,
+  },
+  heroCarousel: {
+    alignSelf: 'center',
   },
   heroOverlay: {
     flex: 1,
@@ -480,13 +488,13 @@ const styles = StyleSheet.create({
   coinContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 84,
+    height: 78,
     marginBottom: 16,
   },
   coin: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#D8A02F',
@@ -495,9 +503,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
   },
   coinInner: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: 'rgba(255,255,255,0.25)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.4)',
@@ -567,12 +575,12 @@ const styles = StyleSheet.create({
   contentTypesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 16,
+    justifyContent: 'space-between',
+    gap: 12,
     paddingBottom: 20,
     marginBottom: 20,
   },
   contentTypeCard: {
-    width: '47%',
     aspectRatio: 1.05,
     backgroundColor: 'rgba(27, 4, 17, 0.65)',
     borderRadius: 20,
